@@ -1,7 +1,17 @@
-import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.core.ResponseDeserializable
+import com.google.gson.Gson
+import data.Repository
+import net.ProjectExtractor
+import java.nio.file.Paths
 
 fun main(args : Array<String>)
 {
-    //https://api.github.com/search/repositories?q=language:java&sort=stars&order=desc
+    ProjectExtractor(Paths.get("projects.json")).extract()
+}
 
+data class SearchResponse(var items:List<Repository>, var total_count:Int)
+{
+    class Deserializer : ResponseDeserializable<SearchResponse> {
+        override fun deserialize(content: String) = Gson().fromJson(content, SearchResponse::class.java)
+    }
 }

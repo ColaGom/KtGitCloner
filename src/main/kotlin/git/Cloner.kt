@@ -1,12 +1,29 @@
 package git
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import data.Repository
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 
-class Cloner()
+class Cloner(val path:String)
 {
     val cloneDir = "C:/Research/Repository";
+
+    fun cloneAll()
+    {
+        val map : HashMap<String, Repository> = Gson().fromJson(readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
+        val size = map.values.size
+
+        println(size)
+
+        var count = 0;
+        map.values.forEach({
+            println("${++count} / ${size}")
+            clone(it);
+        })
+    }
 
     fun clone(target:Repository)
     {
@@ -32,6 +49,12 @@ class Cloner()
             e.printStackTrace()
         }
     }
+
+    private fun readText() : String
+    {
+        return File(path).readText();
+    }
+
 
     private fun makeCommmand(target:Repository) : String
     {

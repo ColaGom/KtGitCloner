@@ -3,6 +3,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import data.Repository
+import git.Cloner
 import net.ProjectExtractor
 import java.io.File
 import java.nio.file.Paths
@@ -31,15 +32,15 @@ fun main(args : Array<String>)
 
     var map : HashMap<String, Repository> = Gson().fromJson(File("projects_map.json").readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
 
+    println(map.values.size)
+
+    val cloner = Cloner()
+    var count = 0;
     map.values.forEach({
-        it.full_name.clone()
+        println("${++count} / ${map.values.size}")
+        cloner.clone(it);
     })
 
-}
-
-inline fun String.clone()
-{
-    println(this)
 }
 
 data class SearchResponse(var items:List<Repository>, var total_count:Int)

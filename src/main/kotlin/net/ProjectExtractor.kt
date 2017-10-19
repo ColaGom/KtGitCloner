@@ -27,14 +27,12 @@ class ProjectExtractor(val savePath: Path)
             val (search, err) = result
 
             search?.let {
-
                 search.items.forEach({
                     if(!results.containsKey(it.full_name)) {
                         results.put(it.full_name, it);
                         println("added ${it.full_name}")
                     }
                 })
-
                 totalCount += search.items.size;
             }
 

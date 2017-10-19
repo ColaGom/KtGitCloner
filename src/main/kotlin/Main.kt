@@ -1,11 +1,12 @@
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
+import common.Projects
 import data.Repository
 import git.Cloner
 
 fun main(args : Array<String>)
 {
-    cloneAll()
+    Projects.getAllProjects().forEach { println(it.path) }
 }
 
 private fun cloneAll()

@@ -55,7 +55,6 @@ class Cloner(val path:String)
         return File(path).readText();
     }
 
-
     private fun makeCommmand(target:Repository) : String
     {
         return "git clone ${target.clone_url} $cloneDir/${target.full_name}";

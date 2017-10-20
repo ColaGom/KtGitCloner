@@ -1,8 +1,6 @@
 package common
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import nlp.PreProcessor
 import java.io.File
 import java.nio.file.Paths
@@ -18,7 +16,11 @@ class BagOfWord(val root:File)
             saveFile.parentFile.mkdirs()
 
         FileUtils.readAllFilesExt(root, "java").forEach({
-            mapBow.put(it.path, PreProcessor(it.readText()).run())
+            try {
+                mapBow.put(it.path, PreProcessor(it.readText()).run())
+            }catch (e:StackOverflowError) {
+                println("Failed readText ${it.path}")
+            }
         })
 
         println("[BagOfWord]generate ${saveFile.path}")

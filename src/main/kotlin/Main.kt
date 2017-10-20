@@ -14,6 +14,12 @@ import java.io.File
 
 fun main(args : Array<String>)
 {
+//    val txt = File("C:\\Research\\Repository\\AndroidBootstrap\\android-bootstrap\\app\\src\\main\\java\\com\\donnfelker\\android\\bootstrap\\util\\ViewUpdater.java").readText()
+//
+//    println(PreProcessor("").splitLargeStr(1000, txt))
+//
+//    return
+
     Projects.getAllProjects().forEach({
         BagOfWord(it).generate()
     })

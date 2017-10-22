@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <option name="BUILD_PROCESS_HEAP_SIZE" value="12288" />
+    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Xss4m" />
     <bytecodeTargetLevel>
       <module name="KtGitCloner_main" target="1.8" />
       <module name="KtGitCloner_test" target="1.8" />

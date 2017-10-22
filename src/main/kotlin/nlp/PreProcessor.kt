@@ -3,13 +3,13 @@ package nlp
 import common.KEY_COMMENT
 import common.KEY_SOURCE
 import common.Stopwords
-import mapInPlace
+import data.SourceFile
 import org.tartarus.snowball.ext.englishStemmer
 
 class PreProcessor(var raw: String) {
     companion object {
         val regComment = Regex("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)")
-        val regComment2 = Regex("/\\*(?:.|[\\n\\r])*?\\*/")
+        val regComment2 = Regex("/\\*(?:.|[\\r\\n])*?\\*/")
         val regAnnotate = Regex("@.*\\b")
         val regNonAlphanum = Regex("[^a-zA-Z]")
         val regCamelCase = Regex(String.format("%s|%s|%s",
@@ -20,6 +20,70 @@ class PreProcessor(var raw: String) {
 
         val regHtml = Regex("<[^>]*>")
     }
+
+    fun toSourceFile(path : String): SourceFile {
+        var wordMap: HashMap<String, HashMap<String, Int>> = hashMapOf()
+        var srcLen = 0
+        var comLen = 0
+
+        var strComment = ""
+        var strSource = ""
+
+        val matcher = regComment.toPattern().matcher(raw)
+
+        while (matcher.find()) {
+            val str = matcher.group();
+
+            if (!str.contains("license", true) && !str.contains("copyright", true)) {
+                strComment += str + " ";
+            }
+        }
+
+        strSource = regComment.replace(raw, "");
+
+        srcLen = strSource.length
+        comLen = strComment.length
+
+        strSource = regAnnotate.replace(strSource, "")
+        strSource = regNonAlphanum.replace(strSource, " ")
+        strSource = regCamelCase.replace(strSource, " ")
+
+        strComment = regAnnotate.replace(strComment, "")
+        strComment = regHtml.replace(strComment, "")
+        strComment = regNonAlphanum.replace(strComment, " ")
+        strComment = regCamelCase.replace(strComment, " ")
+
+        val stemmer = englishStemmer()
+        val srcFreqMap : HashMap<String, Int> = hashMapOf()
+        val comFreqMap : HashMap<String, Int> = hashMapOf()
+
+
+        strSource.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toList().forEach {
+            stemmer.setCurrent(it)
+            stemmer.stem()
+            val key = stemmer.current
+            if(srcFreqMap.containsKey(key))
+                srcFreqMap.set(key, srcFreqMap.get(key)!! + 1)
+            else
+                srcFreqMap.put(key, 1)
+        }
+
+        strComment.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toList().forEach {
+            stemmer.setCurrent(it)
+            stemmer.stem()
+            val key = stemmer.current
+            if(comFreqMap.containsKey(key))
+                comFreqMap.set(key, comFreqMap.get(key)!! + 1)
+            else
+                comFreqMap.put(key, 1)
+        }
+
+        wordMap.put(KEY_SOURCE, srcFreqMap)
+        wordMap.put(KEY_COMMENT, comFreqMap)
+
+        return SourceFile(path, comLen, srcLen, wordMap)
+    }
+
 
     fun step1() {
         // avoid to overflow
@@ -40,8 +104,8 @@ class PreProcessor(var raw: String) {
         while (true) {
             var find = false
 
-            for (i in splen + current downTo current+1) {
-                if (str[i-1] == '\r' && str[i] == '\n') {
+            for (i in splen + current downTo current + 1) {
+                if (str[i - 1] == '\r' && str[i] == '\n') {
                     result.add(str.substring(current, i))
                     current = i
                     find = true
@@ -49,8 +113,8 @@ class PreProcessor(var raw: String) {
                 }
             }
 
-            if(!find && current + splen < str.length) {
-                result.add(str.substring(current, current+ splen))
+            if (!find && current + splen < str.length) {
+                result.add(str.substring(current, current + splen))
                 current += splen
             }
 
@@ -61,6 +125,38 @@ class PreProcessor(var raw: String) {
         }
 
         return result
+    }
+
+    fun run2(): HashMap<String, List<String>> {
+        var result: HashMap<String, List<String>> = hashMapOf()
+        var strComment = ""
+        var strSource = ""
+
+        val matcher = regComment.toPattern().matcher(raw)
+
+        while (matcher.find()) {
+            val str = matcher.group();
+
+            if (!str.contains("license", true) && !str.contains("copyright", true)) {
+                strComment += str + " ";
+            }
+        }
+
+        strSource = regComment.replace(raw, "");
+
+        strSource = regAnnotate.replace(strSource, "")
+        strSource = regNonAlphanum.replace(strSource, " ")
+        strSource = regCamelCase.replace(strSource, " ")
+
+        strComment = regAnnotate.replace(strComment, "")
+        strComment = regHtml.replace(strComment, "")
+        strComment = regNonAlphanum.replace(strComment, " ")
+        strComment = regCamelCase.replace(strComment, " ")
+
+        result.put(KEY_SOURCE, strSource.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toMutableList())
+        result.put(KEY_COMMENT, strComment.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toMutableList())
+
+        return result;
     }
 
     fun run(): List<String> {

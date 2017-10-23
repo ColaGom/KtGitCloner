@@ -3,7 +3,7 @@ package net
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.httpGet
 
-class RequestBuilder(var language:String = "language:java",
+class RequestBuilder(var q:String = "q:java+size:>=10000",
                      var sort:String = "stars",
                      var order:String = "desc",
                      var page:Int = 1)
@@ -19,7 +19,7 @@ class RequestBuilder(var language:String = "language:java",
     private fun getParams() : List<Pair<String, Any>>
     {
         return listOf(
-                Pair("q", language), Pair("sort", sort),
+                Pair("q", q), Pair("sort", sort),
                 Pair("order", order), Pair("page", page),
                 Pair("client_id", ID) , Pair("client_secret", SECRET)
         );

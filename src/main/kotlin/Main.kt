@@ -6,8 +6,14 @@ import common.*
 import data.ProjectModel
 import data.Repository
 import git.Cloner
+import javafx.scene.chart.XYChart
+import org.knowm.xchart.QuickChart
 import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
+import org.knowm.xchart.SwingWrapper
+import org.knowm.xchart.XYChartBuilder
+import org.knowm.xchart.style.Styler
+
 
 //소스 파일 bag of words
 //count of list, count of set
@@ -15,11 +21,31 @@ import java.io.File
 
 
 fun main(args: Array<String>) {
-//    val txt = File("C:\\Research\\Repository\\AndroidBootstrap\\android-bootstrap\\app\\src\\main\\java\\com\\donnfelker\\android\\bootstrap\\util\\ViewUpdater.java").readText()
-//
-//    println(PreProcessor("").splitLargeStr(1000, txt))
-//
-//    return
+
+    val srcLenList : MutableList<Int> = mutableListOf()
+    val wordLenList : MutableList<Int> = mutableListOf()
+    val wordSet : HashSet<String> = hashSetOf()
+
+    Projects.getAllProjects().forEach{
+        val project = ProjectModel.load(it)
+        project.sourceList.forEach{
+            it.wordMap.values.forEach{
+                it.keys.forEach {
+                    wordSet.add(it)
+                }
+            }
+
+            srcLenList.add(it.comLen + it.srcLen)
+            wordLenList.add(wordSet.size)
+        }
+    }
+
+    val chart = XYChartBuilder().width(600).height(600).title("Title").xAxisTitle("x").yAxisTitle("y").theme(Styler.ChartTheme.Matlab).build()
+    chart.addSeries("www", srcLenList.toIntArray(), wordLenList.toIntArray())
+    SwingWrapper(chart).displayChart()
+
+    return
+
     var totalSrcLen : Long = 0
     var totalComLen : Long = 0
     var totalFileCount : Long = 0
@@ -33,7 +59,7 @@ fun main(args: Array<String>) {
             totalSrcLen += it.srcLen
         }
     }
-    println("src Len : $totalSrcLen / com Len : $totalComLen / fileCoutn : $totalFileCount")
+    println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount")
     return
 
     val stemmer = englishStemmer()

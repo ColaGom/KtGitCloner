@@ -25,23 +25,31 @@ fun main(args: Array<String>) {
     val srcLenList : MutableList<Int> = mutableListOf()
     val wordLenList : MutableList<Int> = mutableListOf()
     val wordSet : HashSet<String> = hashSetOf()
+    var srcLen = 0;
+    var wordLen = 0
 
     Projects.getAllProjects().forEach{
         val project = ProjectModel.load(it)
+
         project.sourceList.forEach{
             it.wordMap.values.forEach{
                 it.keys.forEach {
-                    wordSet.add(it)
+                    if(!wordSet.contains(it))
+                        wordSet.add(it)
                 }
             }
-
-            srcLenList.add(it.comLen + it.srcLen)
-            wordLenList.add(wordSet.size)
+            srcLen += (it.srcLen + it.comLen)/10
+            wordLen = wordSet.size
+            srcLenList.add(srcLen / 10000)
+            wordLenList.add(wordLen / 1000)
         }
     }
 
-    val chart = XYChartBuilder().width(600).height(600).title("Title").xAxisTitle("x").yAxisTitle("y").theme(Styler.ChartTheme.Matlab).build()
+    val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("x").yAxisTitle("y").theme(Styler.ChartTheme.Matlab).build()
+    chart.styler.setMarkerSize(0)
+
     chart.addSeries("www", srcLenList.toIntArray(), wordLenList.toIntArray())
+
     SwingWrapper(chart).displayChart()
 
     return

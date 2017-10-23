@@ -18,8 +18,7 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         fun load(root: File) : ProjectModel
         {
             val saveFile = root.toSaveFile();
-            println("[ProjectModel]load ${saveFile.path}")
-            return Gson().fromJson(root.toSaveFile().readText(), ProjectModel::class.java);
+            return Gson().fromJson(saveFile.readText(), ProjectModel::class.java);
         }
 
         fun create(root: File) : ProjectModel

@@ -9,3 +9,4 @@ const val KEY_COMMENT = "key.comment"
 const val KEY_SOURCE = "key.source"
 
 const val PATH_DATA = "C:/Research/Data"
+const val PATH_PROJECT_MAP = "project_map.json"

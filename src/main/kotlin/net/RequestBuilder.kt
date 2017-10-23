@@ -3,7 +3,7 @@ package net
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.httpGet
 
-class RequestBuilder(var q:String = "q:java+size:>=10000",
+class RequestBuilder(var q:String = "q:language=java+size:>=10000",
                      var sort:String = "stars",
                      var order:String = "desc",
                      var page:Int = 1)
@@ -13,7 +13,7 @@ class RequestBuilder(var q:String = "q:java+size:>=10000",
 
     fun build() : Request
     {
-        return "https://api.github.com/search/repositories?".httpGet(getParams());
+        return "https://api.github.com/search/repositories?q=$q&sort=$sort&order=$order&page=$page".httpGet();
     }
 
     private fun getParams() : List<Pair<String, Any>>

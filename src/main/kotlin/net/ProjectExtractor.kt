@@ -26,6 +26,8 @@ class ProjectExtractor(val savePath: Path)
             val (request, response, result) = requestBuilder.build().responseObject(SearchResponse.Deserializer());
             val (search, err) = result
 
+            println(request.url)
+
             search?.let {
                 search.items.forEach({
                     if(!results.containsKey(it.full_name)) {

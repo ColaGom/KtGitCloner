@@ -7,12 +7,14 @@ import data.ProjectModel
 import data.Repository
 import git.Cloner
 import javafx.scene.chart.XYChart
+import net.ProjectExtractor
 import org.knowm.xchart.QuickChart
 import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
+import java.nio.file.Paths
 
 
 //소스 파일 bag of words
@@ -21,6 +23,9 @@ import org.knowm.xchart.style.Styler
 
 
 fun main(args: Array<String>) {
+
+    ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()
+    return
 
     val srcLenList : MutableList<Int> = mutableListOf()
     val wordLenList : MutableList<Int> = mutableListOf()
@@ -114,7 +119,7 @@ fun main(args: Array<String>) {
 }
 
 private fun cloneAll() {
-    Cloner("project_map.json").cloneAll()
+    Cloner(PATH_PROJECT_MAP).cloneAll()
 }
 
 data class SearchResponse(var items: List<Repository>, var total_count: Int) {

@@ -8,11 +8,10 @@ import data.Repository
 import git.Cloner
 import javafx.scene.chart.XYChart
 import net.ProjectExtractor
-import org.knowm.xchart.QuickChart
+import org.knowm.xchart.*
+import org.knowm.xchart.style.CategoryStyler
 import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
-import org.knowm.xchart.SwingWrapper
-import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
 import java.nio.file.Paths
 
@@ -20,42 +19,87 @@ import java.nio.file.Paths
 //소스 파일 bag of words
 //count of list, count of set
 //count of line
+fun File.toSaveFile() : File
+{
+    return Paths.get(this.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile()
+}
+
+fun printAllCloneCommand()
+{
+    val cloneDir = "C:/Research/Repository";
+    val map : HashMap<String, Repository> = Gson().fromJson(File(PATH_PROJECT_MAP).readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
+
+    map.values.forEach { target->
+        if(target.language.equals("Java") && target.size < 2048000)
+        {
+            val cmd = "git clone ${target.clone_url} $cloneDir/${target.full_name}";
+            println(cmd)
+        }
+    }
+}
 
 
-fun main(args: Array<String>) {
-
-    ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()
-    return
-
+fun main(args: Array<String>){
     val srcLenList : MutableList<Int> = mutableListOf()
     val wordLenList : MutableList<Int> = mutableListOf()
     val wordSet : HashSet<String> = hashSetOf()
-    var srcLen = 0;
-    var wordLen = 0
 
-    Projects.getAllProjects().forEach{
+    val srcWordLenList : MutableList<Int> = mutableListOf()
+    val srcWordSet : HashSet<String> = hashSetOf()
+
+    val comWordLenList : MutableList<Int> = mutableListOf()
+    val comWordSet : HashSet<String> = hashSetOf()
+
+    var srcLen = 0.0;
+    var pSrcLen = 0.0;
+
+    Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach{
         val project = ProjectModel.load(it)
 
         project.sourceList.forEach{
-            it.wordMap.values.forEach{
-                it.keys.forEach {
-                    if(!wordSet.contains(it))
-                        wordSet.add(it)
-                }
+            it.wordMap.get(KEY_COMMENT)?.keys?.forEach{
+                if(!wordSet.contains(it))
+                    wordSet.add(it)
+
+                if(!srcWordSet.contains(it))
+                    srcWordSet.add(it)
             }
-            srcLen += (it.srcLen + it.comLen)/10
-            wordLen = wordSet.size
-            srcLenList.add(srcLen / 10000)
-            wordLenList.add(wordLen / 1000)
+
+            it.wordMap.get(KEY_SOURCE)?.keys?.forEach{
+                if(!wordSet.contains(it))
+                    wordSet.add(it)
+
+                if(!comWordSet.contains(it))
+                    comWordSet.add(it)
+            }
+            srcLen += (it.srcLen + it.comLen) / 1000000.0
+
+            if(srcLen - pSrcLen > 200)
+            {
+                println("add ${srcLen.toInt()}")
+                pSrcLen = srcLen
+                srcLenList.add(srcLen.toInt())
+                wordLenList.add(wordSet.size/1000)
+                srcWordLenList.add(srcWordSet.size/1000)
+                comWordLenList.add(comWordSet.size/1000)
+            }
         }
     }
 
-    val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("x").yAxisTitle("y").theme(Styler.ChartTheme.Matlab).build()
-    chart.styler.setMarkerSize(0)
 
-    chart.addSeries("www", srcLenList.toIntArray(), wordLenList.toIntArray())
+//
+    val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("length of source code (m)").yAxisTitle("size of wordset (k)").theme(Styler.ChartTheme.Matlab).build()
+    chart.styler.setMarkerSize(5)
+    chart.styler.setLegendPosition(Styler.LegendPosition.InsideNW)
+    chart.styler.setChartTitleVisible(false)
+
+    chart.addSeries("src+com", srcLenList.toIntArray(), wordLenList.toIntArray())
+    chart.addSeries("src", srcLenList.toIntArray(), srcWordLenList.toIntArray())
+    chart.addSeries("com", srcLenList.toIntArray(), comWordLenList.toIntArray())
 
     SwingWrapper(chart).displayChart()
+
+    BitmapEncoder.saveBitmapWithDPI(chart, "./chart_300", BitmapEncoder.BitmapFormat.PNG, 300);
 
     return
 

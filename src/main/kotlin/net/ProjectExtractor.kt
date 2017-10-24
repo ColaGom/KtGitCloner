@@ -38,8 +38,11 @@ class ProjectExtractor(val savePath: Path)
                 totalCount += search.items.size;
             }
 
-            if(err != null)
-                break;
+            if(requestBuilder.page > 34)
+                break
+            else if(err != null) {
+                Thread.sleep(10000)
+            }
             else
                 requestBuilder.page++;
         }

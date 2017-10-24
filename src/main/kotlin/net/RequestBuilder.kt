@@ -3,7 +3,7 @@ package net
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.httpGet
 
-class RequestBuilder(var q:String = "q:language=java+size:>=10000",
+class RequestBuilder(var q:String = "language:java+size:>=20000",
                      var sort:String = "stars",
                      var order:String = "desc",
                      var page:Int = 1)

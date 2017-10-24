@@ -6,6 +6,7 @@ import data.Repository
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.nio.file.Paths
 
 class Cloner(val path:String)
 {
@@ -21,12 +22,18 @@ class Cloner(val path:String)
         var count = 0;
         map.values.forEach({
             println("${++count} / ${size}")
-            clone(it);
+
+
+            if(it.language.equals("Java"))
+                clone(it);
         })
     }
 
     fun clone(target:Repository)
     {
+        if(Paths.get(cloneDir, target.full_name).toFile().exists())
+            return
+
         val command = makeCommmand(target)
 
         try {

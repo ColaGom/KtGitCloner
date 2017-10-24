@@ -62,6 +62,18 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
 
 }
 
-data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wordMap:HashMap<String,HashMap<String, Int>>)
+data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wordMap:HashMap<String,HashMap<String, Int>>, val tfIdfMap:HashMap<String, Double> = hashMapOf())
 {
+    fun wordMapSize() : Int
+    {
+        var result = 0;
+
+        wordMap.forEach{
+            it.value.forEach{
+                result += it.value
+            }
+        }
+
+        return result
+    }
 }

@@ -12,14 +12,16 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
             it.wordMap.forEach {
                 it.value.forEach {
                     val key = it.key
-                    totalSize += it.value
+                    totalSize += 1
                     if(mergedDoc.containsKey(key))
-                        mergedDoc.set(key, mergedDoc.get(key)!! + it.value)
+                        mergedDoc.set(key, mergedDoc.get(key)!! + 1)
                     else
-                        mergedDoc.put(key, it.value)
+                        mergedDoc.put(key, 1)
                 }
             }
         }
+
+        println("[Cluster] totalSize : $totalSize")
 
         sourceList.forEach { src->
             src.wordMap.values.forEach {

@@ -7,15 +7,14 @@ import data.ProjectModel
 import data.Repository
 import data.SourceFile
 import git.Cloner
-import javafx.scene.chart.XYChart
 import ml.Cluster
 import net.ProjectExtractor
 import org.knowm.xchart.*
-import org.knowm.xchart.style.CategoryStyler
-import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
 import org.knowm.xchart.style.Styler
 import java.nio.file.Paths
+import java.util.*
+import kotlin.collections.HashMap
 
 
 //소스 파일 bag of words
@@ -40,16 +39,16 @@ fun printAllCloneCommand() {
     }
 }
 
-fun analysis1() {
+fun analysis1(limit: Int = 0, thr: Int = 1, suffix: String) {
     val srcLenList: MutableList<Int> = mutableListOf()
     val wordLenList: MutableList<Int> = mutableListOf()
-    val wordSet: HashSet<String> = hashSetOf()
+    val wordSet: HashMap<String, Int> = hashMapOf()
 
     val srcWordLenList: MutableList<Int> = mutableListOf()
-    val srcWordSet: HashSet<String> = hashSetOf()
+    val srcWordSet: HashMap<String, Int> = hashMapOf()
 
     val comWordLenList: MutableList<Int> = mutableListOf()
-    val comWordSet: HashSet<String> = hashSetOf()
+    val comWordSet: HashMap<String, Int> = hashMapOf()
 
     var srcLen = 0.0;
     var pSrcLen = 0.0;
@@ -59,36 +58,44 @@ fun analysis1() {
 
         project.sourceList.forEach {
             it.wordMap.get(KEY_COMMENT)?.forEach {
-                if (it.value > 2) {
+                if (it.value > thr) {
                     val key = it.key
                     if (!wordSet.contains(key))
-                        wordSet.add(key)
+                        wordSet.put(key, 1)
+                    else
+                        wordSet.set(key, wordSet.get(key)!! + 1)
 
                     if (!comWordSet.contains(key))
-                        comWordSet.add(key)
+                        comWordSet.put(key, 1)
+                    else
+                        comWordSet.put(key, comWordSet.get(key)!! + 1)
                 }
             }
 
             it.wordMap.get(KEY_SOURCE)?.forEach {
-                if (it.value > 2) {
+                if (it.value > thr) {
                     val key = it.key
                     if (!wordSet.contains(key))
-                        wordSet.add(key)
+                        wordSet.put(key, 1)
+                    else
+                        wordSet.set(key, wordSet.get(key)!! + 1)
 
                     if (!srcWordSet.contains(key))
-                        srcWordSet.add(key)
+                        srcWordSet.put(key, 1)
+                    else
+                        srcWordSet.set(key, srcWordSet.get(key)!! + 1)
                 }
             }
 
-            srcLen += (it.srcLen + it.comLen) / 1000000.0
+            srcLen += it.wordMapSize() / 1000000.0
 
-            if (srcLen - pSrcLen >= 500) {
+            if (srcLen - pSrcLen >= 35) {
                 println("add ${srcLen.toInt()}")
                 pSrcLen = srcLen
                 srcLenList.add(srcLen.toInt())
-                wordLenList.add(wordSet.size / 1000)
-                srcWordLenList.add(srcWordSet.size / 1000)
-                comWordLenList.add(comWordSet.size / 1000)
+                wordLenList.add(wordSet.filter { it.value > limit }.size / 1000)
+                srcWordLenList.add(srcWordSet.filter { it.value > limit }.size / 1000)
+                comWordLenList.add(comWordSet.filter { it.value > limit }.size / 1000)
             }
         }
     }
@@ -96,12 +103,12 @@ fun analysis1() {
     println("last ${srcLen.toInt()}")
     pSrcLen = srcLen
     srcLenList.add(srcLen.toInt())
-    wordLenList.add(wordSet.size / 1000)
-    srcWordLenList.add(srcWordSet.size / 1000)
-    comWordLenList.add(comWordSet.size / 1000)
+    wordLenList.add(wordSet.filter { it.value > limit }.size / 1000)
+    srcWordLenList.add(srcWordSet.filter { it.value > limit }.size / 1000)
+    comWordLenList.add(comWordSet.filter { it.value > limit }.size / 1000)
 
 //
-    val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("length of source code (m)").yAxisTitle("size of wordset (k)").theme(Styler.ChartTheme.Matlab).build()
+    val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("length of words in source code (m)").yAxisTitle("size of wordset (k)").theme(Styler.ChartTheme.Matlab).build()
     chart.styler.setMarkerSize(5)
     chart.styler.setLegendPosition(Styler.LegendPosition.InsideNW)
     chart.styler.setChartTitleVisible(false)
@@ -110,23 +117,37 @@ fun analysis1() {
     chart.addSeries("src", srcLenList.toIntArray(), srcWordLenList.toIntArray())
     chart.addSeries("com", srcLenList.toIntArray(), comWordLenList.toIntArray())
 
-    SwingWrapper(chart).displayChart()
+//    SwingWrapper(chart).displayChart()
 
-    BitmapEncoder.saveBitmapWithDPI(chart, "./chart_300", BitmapEncoder.BitmapFormat.PNG, 300);
+    BitmapEncoder.saveBitmapWithDPI(chart, "./${limit}_${suffix}.png", BitmapEncoder.BitmapFormat.PNG, 200);
+    File("./${limit}_srcWordSet_${suffix}.json").printWriter().use {
+        it.print(GsonBuilder().setPrettyPrinting().create().toJson(srcWordSet.filter { it.value > limit }))
+    }
+    File("./${limit}_comWordSet_${suffix}.json").printWriter().use {
+        it.print(GsonBuilder().setPrettyPrinting().create().toJson(comWordSet.filter { it.value > limit }))
+    }
 }
 
 
 fun main(args: Array<String>) {
+    analysis1(0, suffix = "2")
+    analysis1(10, suffix = "2")
+    analysis1(50, suffix = "2")
+    analysis1(100, suffix = "2")
+    return
 
     val target: MutableList<SourceFile> = mutableListOf()
 
     run outer@ {
-        Projects.getAllProjects().forEach {
+        Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
             val project = ProjectModel.load(it)
 
-            target.addAll(project.sourceList)
+            if (project.sourceList.size > 200)
+                target.addAll(project.sourceList.subList(0, Random().nextInt(200)))
+            else
+                target.addAll(project.sourceList.subList(0, Random().nextInt(project.sourceList.size)))
 
-            if (target.size > 500)
+            if (target.size > 10000)
                 return@outer
         }
     }
@@ -139,9 +160,6 @@ fun main(args: Array<String>) {
     ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()
     return
 
-    analysis1()
-
-    return
     var totalSrcLen: Long = 0
     var totalComLen: Long = 0
     var totalFileCount: Long = 0

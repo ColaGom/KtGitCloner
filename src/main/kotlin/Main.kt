@@ -5,8 +5,10 @@ import com.google.gson.reflect.TypeToken
 import common.*
 import data.ProjectModel
 import data.Repository
+import data.SourceFile
 import git.Cloner
 import javafx.scene.chart.XYChart
+import ml.Cluster
 import net.ProjectExtractor
 import org.knowm.xchart.*
 import org.knowm.xchart.style.CategoryStyler
@@ -115,6 +117,21 @@ fun analysis1() {
 
 
 fun main(args: Array<String>) {
+
+    val target : MutableList<SourceFile> = mutableListOf()
+
+    Projects.getAllProjects().forEach{
+        val project = ProjectModel.load(it)
+
+        target.addAll(project.sourceList)
+
+        if(target.size > 500)
+            return
+    }
+
+    val c = Cluster(target)
+    c.clustering()
+    return
     printAllCloneCommand()
     return
     ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()

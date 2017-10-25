@@ -19,73 +19,84 @@ import java.nio.file.Paths
 //소스 파일 bag of words
 //count of list, count of set
 //count of line
-fun File.toSaveFile() : File
-{
-    return Paths.get(this.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile()
+fun File.toSaveFile(): File {
+    return Paths.get(this.path.replace("Research\\Repository", "Research\\data"), "list_source.json").toFile()
 }
 
-fun printAllCloneCommand()
-{
+fun printAllCloneCommand() {
     val cloneDir = "C:/Research/Repository";
-    val map : HashMap<String, Repository> = Gson().fromJson(File(PATH_PROJECT_MAP).readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
+    val map: HashMap<String, Repository> = Gson().fromJson(File(PATH_PROJECT_MAP).readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
 
-    map.values.forEach { target->
-        if(target.language.equals("Java") && target.size < 2048000)
-        {
-            val cmd = "git clone ${target.clone_url} $cloneDir/${target.full_name}";
-            println(cmd)
+    map.values.forEach { target ->
+        if (target.language.equals("Java") && target.size < 2048000) {
+            val path = "$cloneDir/${target.full_name}"
+            if(!File(path).exists()) {
+                val cmd = "git clone ${target.clone_url} $path";
+                println(cmd)
+            }
         }
     }
 }
 
+fun analysis1() {
+    val srcLenList: MutableList<Int> = mutableListOf()
+    val wordLenList: MutableList<Int> = mutableListOf()
+    val wordSet: HashSet<String> = hashSetOf()
 
-fun main(args: Array<String>){
-    val srcLenList : MutableList<Int> = mutableListOf()
-    val wordLenList : MutableList<Int> = mutableListOf()
-    val wordSet : HashSet<String> = hashSetOf()
+    val srcWordLenList: MutableList<Int> = mutableListOf()
+    val srcWordSet: HashSet<String> = hashSetOf()
 
-    val srcWordLenList : MutableList<Int> = mutableListOf()
-    val srcWordSet : HashSet<String> = hashSetOf()
-
-    val comWordLenList : MutableList<Int> = mutableListOf()
-    val comWordSet : HashSet<String> = hashSetOf()
+    val comWordLenList: MutableList<Int> = mutableListOf()
+    val comWordSet: HashSet<String> = hashSetOf()
 
     var srcLen = 0.0;
     var pSrcLen = 0.0;
 
-    Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach{
+    Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
         val project = ProjectModel.load(it)
 
-        project.sourceList.forEach{
-            it.wordMap.get(KEY_COMMENT)?.keys?.forEach{
-                if(!wordSet.contains(it))
-                    wordSet.add(it)
+        project.sourceList.forEach {
+            it.wordMap.get(KEY_COMMENT)?.forEach {
+                if (it.value > 2) {
+                    val key = it.key
+                    if (!wordSet.contains(key))
+                        wordSet.add(key)
 
-                if(!srcWordSet.contains(it))
-                    srcWordSet.add(it)
+                    if (!comWordSet.contains(key))
+                        comWordSet.add(key)
+                }
             }
 
-            it.wordMap.get(KEY_SOURCE)?.keys?.forEach{
-                if(!wordSet.contains(it))
-                    wordSet.add(it)
+            it.wordMap.get(KEY_SOURCE)?.forEach {
+                if (it.value > 2) {
+                    val key = it.key
+                    if (!wordSet.contains(key))
+                        wordSet.add(key)
 
-                if(!comWordSet.contains(it))
-                    comWordSet.add(it)
+                    if (!srcWordSet.contains(key))
+                        srcWordSet.add(key)
+                }
             }
+
             srcLen += (it.srcLen + it.comLen) / 1000000.0
 
-            if(srcLen - pSrcLen > 200)
-            {
+            if (srcLen - pSrcLen >= 500) {
                 println("add ${srcLen.toInt()}")
                 pSrcLen = srcLen
                 srcLenList.add(srcLen.toInt())
-                wordLenList.add(wordSet.size/1000)
-                srcWordLenList.add(srcWordSet.size/1000)
-                comWordLenList.add(comWordSet.size/1000)
+                wordLenList.add(wordSet.size / 1000)
+                srcWordLenList.add(srcWordSet.size / 1000)
+                comWordLenList.add(comWordSet.size / 1000)
             }
         }
     }
 
+    println("last ${srcLen.toInt()}")
+    pSrcLen = srcLen
+    srcLenList.add(srcLen.toInt())
+    wordLenList.add(wordSet.size / 1000)
+    srcWordLenList.add(srcWordSet.size / 1000)
+    comWordLenList.add(comWordSet.size / 1000)
 
 //
     val chart = XYChartBuilder().width(800).height(600).title("Title").xAxisTitle("length of source code (m)").yAxisTitle("size of wordset (k)").theme(Styler.ChartTheme.Matlab).build()
@@ -100,62 +111,35 @@ fun main(args: Array<String>){
     SwingWrapper(chart).displayChart()
 
     BitmapEncoder.saveBitmapWithDPI(chart, "./chart_300", BitmapEncoder.BitmapFormat.PNG, 300);
+}
 
+
+fun main(args: Array<String>) {
+    printAllCloneCommand()
+    return
+    ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()
     return
 
-    var totalSrcLen : Long = 0
-    var totalComLen : Long = 0
-    var totalFileCount : Long = 0
+    analysis1()
+
+    return
+    var totalSrcLen: Long = 0
+    var totalComLen: Long = 0
+    var totalFileCount: Long = 0
 
     Projects.getAllProjects().forEach {
-        val project = ProjectModel.create(it)
+        val project = ProjectModel.createOrLoad(it)
 
-        project.sourceList.forEach{
+        project.sourceList.forEach {
             totalFileCount++
-            totalComLen+= it.comLen
+            totalComLen += it.comLen
             totalSrcLen += it.srcLen
         }
+
+        println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount")
     }
-    println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount")
     return
 
-    val stemmer = englishStemmer()
-    FileUtils.readAllFiles(File(PATH_DATA), NAME_BOW_MAP).forEach({
-        val currentMap: HashMap<String, HashMap<String, List<String>>> = Gson().fromJson(it.readText(), object : TypeToken<HashMap<String, HashMap<String, List<String>>>>() {}.type)
-
-        var stemmedMap : HashMap<String, HashMap<String, HashMap<String, Int>>> = hashMapOf()
-
-        currentMap.forEach {
-            val filePath = it.key
-            var data : HashMap<String, HashMap<String, Int>> = hashMapOf()
-
-            it.value.forEach {
-                val key = it.key
-                val freqMap : HashMap<String, Int> = hashMapOf()
-
-                it.value.forEach {
-                    stemmer.setCurrent(it)
-                    stemmer.stem()
-                    val word = stemmer.current
-
-                    if(freqMap.containsKey(word))
-                        freqMap.put(word, freqMap.get(word)!! + 1)
-                    else
-                        freqMap.put(word, 1)
-                }
-
-                data.put(key, freqMap)
-            }
-
-            stemmedMap.put(filePath.replace("\\\\","\\"), data)
-        }
-
-        val savePath = it.path.replace(NAME_BOW_MAP, NAME_FREQ_SNOW_MAP)
-        File(savePath).printWriter().use {
-            it.print(GsonBuilder().setPrettyPrinting().create().toJson(stemmedMap))
-        }
-        println("saved $savePath")
-    })
 
 //    FileUtils.readAllFiles(File("C:/Research/data"), NAME_FREQ_SNOW).forEach {
 //

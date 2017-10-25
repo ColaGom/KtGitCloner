@@ -33,6 +33,8 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
      * 2. pick next centroid that has farest distance from current centroid
      * 3. k loop step .2 count of k
      * 4. clustering and assign
+     *
+     * size k is root n (n is doc size)
      */
     fun clustering(k:Int)
     {

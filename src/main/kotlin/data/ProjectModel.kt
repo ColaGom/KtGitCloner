@@ -28,6 +28,9 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
             var success = 0
             var failed = 0
 
+            if(!saveFile.parentFile.exists())
+                saveFile.parentFile.mkdirs()
+
             FileUtils.readAllFilesExt(root, "java").forEach({
                 try {
                     project.add(PreProcessor(it.readText()).toSourceFile(it.path))
@@ -46,6 +49,15 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
             }
 
             return project
+        }
+
+        fun createOrLoad(root: File): ProjectModel {
+            val saveFile = Paths.get(root.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile();
+
+            if(saveFile.exists())
+                return load(root)
+            else
+                return create(root)
         }
     }
 

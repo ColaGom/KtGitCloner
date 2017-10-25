@@ -32,7 +32,7 @@ fun printAllCloneCommand() {
     map.values.forEach { target ->
         if (target.language.equals("Java") && target.size < 2048000) {
             val path = "$cloneDir/${target.full_name}"
-            if(!File(path).exists()) {
+            if (!File(path).exists()) {
                 val cmd = "git clone ${target.clone_url} $path";
                 println(cmd)
             }
@@ -118,15 +118,17 @@ fun analysis1() {
 
 fun main(args: Array<String>) {
 
-    val target : MutableList<SourceFile> = mutableListOf()
+    val target: MutableList<SourceFile> = mutableListOf()
 
-    Projects.getAllProjects().forEach{
-        val project = ProjectModel.load(it)
+    run outer@ {
+        Projects.getAllProjects().forEach {
+            val project = ProjectModel.load(it)
 
-        target.addAll(project.sourceList)
+            target.addAll(project.sourceList)
 
-        if(target.size > 500)
-            return
+            if (target.size > 500)
+                return@outer
+        }
     }
 
     val c = Cluster(target)

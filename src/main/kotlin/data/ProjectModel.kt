@@ -80,6 +80,10 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
 {
     var tfIdfMap : HashMap<String, Double> = hashMapOf();
 
+    override fun toString(): String {
+        return path
+    }
+
     fun wordMapSize() : Int
     {
         var result = 0;

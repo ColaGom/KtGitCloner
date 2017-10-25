@@ -1,7 +1,9 @@
 package ml
 
+import com.google.gson.GsonBuilder
 import data.SourceFile
 import java.util.*
+import kotlin.collections.HashMap
 
 class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, Int> = hashMapOf(), var totalSize:Int=0) {
 
@@ -24,8 +26,8 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
         println("[Cluster] totalSize : $totalSize")
 
         sourceList.forEach { src->
+            src.tfIdfMap = hashMapOf()
             src.wordMap.values.forEach {
-                src.tfIdfMap = hashMapOf()
                 it.forEach{
                     src.tfIdfMap.put(it.key, tfIdf(it.key, src));
                 }
@@ -42,9 +44,40 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
      *
      * size k is root n (n is doc size)
      */
-    var centroidList : MutableList<SourceFile> = mutableListOf()
+//    var centroidList : MutableList<SourceFile> = mutableListOf()
 
-    fun clustering(k:Int = Math.sqrt(sourceList.size.toDouble()).toInt() * 2)
+    // centroid / child
+    var clusterList : HashMap<SourceFile, MutableSet<SourceFile>> = hashMapOf()
+
+    fun addCentroid(src:SourceFile)
+    {
+        clusterList.put(src, mutableSetOf(src))
+    }
+
+    fun addChild(centroid:SourceFile, child:SourceFile)
+    {
+        clusterList.get(centroid)?.add(child)
+    }
+
+    fun removeCentroid(src:SourceFile)
+    {
+        clusterList.remove(src)
+    }
+
+    fun assign()
+    {
+        // cluster sets
+        clusterList.values.forEach{
+            it.clear()
+        }
+
+        sourceList.filter { !clusterList.keys.contains(it) }.forEach {
+            val parent = clusterList.keys.minBy { sourceFile -> cosDistance(sourceFile, it) }
+            addChild(parent!!, it)
+        }
+    }
+
+    fun clustering(k:Int = Math.sqrt(sourceList.size.toDouble()).toInt(), iter:Int)
     {
         println("[Cluster] start size : ${sourceList.size} k : $k")
 
@@ -53,7 +86,8 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
 
         println("[Cluster] first centroid idx : $cIdx")
 
-        centroidList.add(centroid)
+        addCentroid(centroid)
+//        centroidList.add(centroid)
 
         for(i in 1..k)
         {
@@ -63,11 +97,11 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
             sourceList.forEach{
                 val dis = cosDistance(centroid, it)
 
-                if(shortestDistance == dis && !centroidList.contains(it) && it.tfIdfMap.size > pickedCenteroid!!.tfIdfMap.size) {
+                if(shortestDistance == dis && !clusterList.keys.contains(it) && it.tfIdfMap.size > pickedCenteroid!!.tfIdfMap.size) {
                     shortestDistance = dis
                     pickedCenteroid = it
                 }
-                if(shortestDistance > dis && !centroidList.contains(it)) {
+                if(shortestDistance > dis && !clusterList.keys.contains(it)) {
                     shortestDistance = dis
                     pickedCenteroid = it
                 }
@@ -79,8 +113,60 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
             println("----------------------------------------------------")
 
             centroid = pickedCenteroid!!
-            centroidList.add(pickedCenteroid!!)
+            addCentroid(pickedCenteroid!!);
         }
+
+        for(i in 1..iter)
+        {
+            assign()
+
+            var rc = 0
+            var iterator = clusterList.iterator()
+            val newCentroid : MutableList<SourceFile> = mutableListOf()
+            while(iterator.hasNext())
+            {
+                val it = iterator.next()
+                val next = findCentroid(it.value)
+
+                if(next != null && it.key != next)
+                {
+                    rc++
+                    iterator.remove()
+                    newCentroid.add(next!!)
+//                    addCentroid(next!!)
+                }
+            }
+
+            newCentroid.forEach{
+                addCentroid(it)
+            }
+            println("[Cluster] seq : $i  reselected centroid count : $rc \\n ${clusterList.size}")
+        }
+
+        println("------------------------Result of Clustering")
+        assign()
+        println(clusterList)
+    }
+
+    fun findCentroid(set:MutableSet<SourceFile>) : SourceFile?
+    {
+        var min = Double.MAX_VALUE
+        var centroid:SourceFile? = null
+
+        set.forEach { current->
+            var mean = 0.0
+            set.forEach {
+                val distance = cosDistance(current, it)
+                mean += distance
+            }
+
+            if(min > mean) {
+                min = mean
+                centroid = current
+            }
+        }
+
+        return centroid
     }
 
     fun cosDistance(src: SourceFile, src2 :SourceFile) : Double

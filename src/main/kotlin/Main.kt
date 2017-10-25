@@ -2,19 +2,22 @@ import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import common.*
+import common.KEY_COMMENT
+import common.KEY_SOURCE
+import common.PATH_PROJECT_MAP
+import common.Projects
 import data.ProjectModel
 import data.Repository
 import data.SourceFile
 import git.Cloner
 import ml.Cluster
 import net.ProjectExtractor
-import org.knowm.xchart.*
-import java.io.File
+import org.knowm.xchart.BitmapEncoder
+import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
+import java.io.File
 import java.nio.file.Paths
 import java.util.*
-import kotlin.collections.HashMap
 
 
 //소스 파일 bag of words
@@ -128,13 +131,7 @@ fun analysis1(limit: Int = 0, thr: Int = 1, suffix: String) {
     }
 }
 
-
 fun main(args: Array<String>) {
-    analysis1(0, suffix = "2")
-    analysis1(10, suffix = "2")
-    analysis1(50, suffix = "2")
-    analysis1(100, suffix = "2")
-    return
 
     val target: MutableList<SourceFile> = mutableListOf()
 
@@ -142,8 +139,8 @@ fun main(args: Array<String>) {
         Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
             val project = ProjectModel.load(it)
 
-            if (project.sourceList.size > 200)
-                target.addAll(project.sourceList.subList(0, Random().nextInt(200)))
+            if (project.sourceList.size > 20)
+                target.addAll(project.sourceList.subList(0, Random().nextInt(20)))
             else
                 target.addAll(project.sourceList.subList(0, Random().nextInt(project.sourceList.size)))
 
@@ -153,7 +150,15 @@ fun main(args: Array<String>) {
     }
 
     val c = Cluster(target)
-    c.clustering()
+    c.clustering(iter = 10)
+
+    return
+    analysis1(0, suffix = "2")
+    analysis1(10, suffix = "2")
+    analysis1(50, suffix = "2")
+    analysis1(100, suffix = "2")
+    return
+
     return
     printAllCloneCommand()
     return

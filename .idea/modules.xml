@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/KtGitCloner.iml" filepath="$PROJECT_DIR$/.idea/modules/KtGitCloner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KtGitCloner_main.iml" filepath="$PROJECT_DIR$/.idea/modules/KtGitCloner_main.iml" group="KtGitCloner" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KtGitCloner_test.iml" filepath="$PROJECT_DIR$/.idea/modules/KtGitCloner_test.iml" group="KtGitCloner" />
     </modules>
   </component>
 </project>

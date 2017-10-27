@@ -9,7 +9,6 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
 
     init {
         println("[Cluster] init")
-
         sourceList.forEach {
             totalSize += 1
             it.wordMap.forEach {
@@ -81,10 +80,9 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
     {
         println("[Cluster] start size : ${sourceList.size} k : $k")
 
-        val cIdx = Random().nextInt(sourceList.size)
-        var centroid = sourceList.get(cIdx);
+        var centroid = sourceList.maxBy { it.wordMapSize() }!!
 
-        println("[Cluster] first centroid idx : $cIdx")
+        println("[Cluster] first centroid idx : ${centroid.path}")
 
         addCentroid(centroid)
 //        centroidList.add(centroid)

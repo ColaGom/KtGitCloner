@@ -132,11 +132,35 @@ fun analysis1(limit: Int = 0, thr: Int = 1, suffix: String) {
     }
 }
 
-fun main(args: Array<String>) {
+fun printBaseInfo()
+{
+    var totalSrcLen: Long = 0
+    var totalComLen: Long = 0
+    var totalFileCount: Long = 0
 
     Projects.getAllProjects().forEach {
+        val project = ProjectModel.createOrLoad(it)
+
+        project.sourceList.forEach {
+            totalFileCount++
+            totalComLen += it.comLen
+            totalSrcLen += it.srcLen
+        }
+
+        println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount")
+    }
+}
+
+fun main(args: Array<String>) {
+    printBaseInfo()
+    return
+
+    analysis1(0, suffix = "2")
+    analysis1(10, suffix = "2")
+    analysis1(100, suffix = "2")
+    return
+    Projects.getAllProjects().forEach {
         val project = ProjectModel.load(it)
-        project.sourceList.map { it.wordmap }
     }
     return
     Projects.getAllProjects().forEach {
@@ -189,11 +213,7 @@ fun main(args: Array<String>) {
 //    val c = Cluster(target)
 //    c.clustering(iter = 10)
     return
-    analysis1(0, suffix = "2")
-    analysis1(10, suffix = "2")
-    analysis1(50, suffix = "2")
-    analysis1(100, suffix = "2")
-    return
+
 
     return
     printAllCloneCommand()
@@ -201,22 +221,6 @@ fun main(args: Array<String>) {
     ProjectExtractor(Paths.get(PATH_PROJECT_MAP)).extract()
     return
 
-    var totalSrcLen: Long = 0
-    var totalComLen: Long = 0
-    var totalFileCount: Long = 0
-
-    Projects.getAllProjects().forEach {
-        val project = ProjectModel.createOrLoad(it)
-
-        project.sourceList.forEach {
-            totalFileCount++
-            totalComLen += it.comLen
-            totalSrcLen += it.srcLen
-        }
-
-        println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount")
-    }
-    return
 
 
 //    FileUtils.readAllFiles(File("C:/Research/data"), NAME_FREQ_SNOW).forEach {

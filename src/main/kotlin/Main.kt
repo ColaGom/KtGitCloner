@@ -11,6 +11,7 @@ import data.Repository
 import data.SourceFile
 import git.Cloner
 import ml.Cluster
+import ml.Searcher
 import net.ProjectExtractor
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChartBuilder
@@ -133,25 +134,60 @@ fun analysis1(limit: Int = 0, thr: Int = 1, suffix: String) {
 
 fun main(args: Array<String>) {
 
+    Projects.getAllProjects().forEach {
+        val project = ProjectModel.load(it)
+        project.sourceList.map { it.wordmap }
+    }
+    return
+    Projects.getAllProjects().forEach {
+        val name = it.path.replace("C:\\Research\\Repository\\" ,"").replace("\\","_") +".json"
+        val savePath = Paths.get("D:\\gitExp", name);
+        println("gitExplorer.jar ${it.path} $savePath")
+    }
+    return
+    Projects.getAllProjects().filter { !it.toSaveFile().exists() }.forEach {
+        ProjectModel.create(it)
+    }
+    return
     val target: MutableList<SourceFile> = mutableListOf()
 
     run outer@ {
         Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
             val project = ProjectModel.load(it)
 
-            if (project.sourceList.size > 20)
-                target.addAll(project.sourceList.subList(0, Random().nextInt(20)))
+            if(project.sourceList.size > 100)
+                target.addAll(project.sourceList.subList(0, 100))
             else
-                target.addAll(project.sourceList.subList(0, Random().nextInt(project.sourceList.size)))
-
-            if (target.size > 10000)
-                return@outer
+                target.addAll(project.sourceList)
         }
     }
 
-    val c = Cluster(target)
-    c.clustering(iter = 10)
+    val query = ProjectModel.load(File("C:\\Research\\Repository\\h2database\\h2database"))
+            .sourceList.find { it.path.contains("MathUtils.java") }
 
+    println(GsonBuilder().setPrettyPrinting().create().toJson(query))
+
+    println(Searcher(query!!, target).run().toList().filter { !it.second.isNaN() }.sortedBy { pair -> pair.second }.reversed().subList(0, 30))
+    return
+
+//    val target: MutableList<SourceFile> = mutableListOf()
+//
+//    run outer@ {
+//        Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
+//            val project = ProjectModel.load(it)
+//
+//            if (project.sourceList.size > 20)
+//                target.addAll(project.sourceList.subList(0, Random().nextInt(20)))
+//            else
+//                target.addAll(project.sourceList.subList(0, Random().nextInt(project.sourceList.size)))
+//
+//            if (target.size > 10000)
+//                return@outer
+//        }
+//    }
+//
+//    val c = Cluster(target)
+//    c.clustering(iter = 10)
     return
     analysis1(0, suffix = "2")
     analysis1(10, suffix = "2")

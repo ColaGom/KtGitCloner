@@ -72,8 +72,6 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
     {
         sourceList.add(sourceFile)
     }
-
-
 }
 
 data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wordMap:HashMap<String,HashMap<String, Int>>)

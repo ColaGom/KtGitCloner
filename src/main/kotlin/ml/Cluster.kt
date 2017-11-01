@@ -1,7 +1,13 @@
 package ml
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonSerializer
+import common.PATH_DATA
+import common.PATH_RESULT
+import data.SimplifySerializer
 import data.SourceFile
+import java.io.File
+import java.nio.file.Paths
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -46,16 +52,16 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
 //    var centroidList : MutableList<SourceFile> = mutableListOf()
 
     // centroid / child
-    var clusterList : HashMap<SourceFile, MutableSet<SourceFile>> = hashMapOf()
+    var clusterList : HashMap<SourceFile, HashMap<SourceFile, Double>> = hashMapOf()
 
     fun addCentroid(src:SourceFile)
     {
-        clusterList.put(src, mutableSetOf(src))
+        clusterList.put(src, hashMapOf())
     }
 
-    fun addChild(centroid:SourceFile, child:SourceFile)
+    fun addChild(centroid:SourceFile, child:SourceFile, cos:Double )
     {
-        clusterList.get(centroid)?.add(child)
+        clusterList.get(centroid)?.put(child, cos)
     }
 
     fun removeCentroid(src:SourceFile)
@@ -71,8 +77,8 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
         }
 
         sourceList.filter { !clusterList.keys.contains(it) }.forEach {
-            val parent = clusterList.keys.minBy { sourceFile -> cosDistance(sourceFile, it) }
-            addChild(parent!!, it)
+            val parent = clusterList.keys.maxBy { sourceFile -> cosDistance(sourceFile, it) }
+            addChild(parent!!, it, cosDistance(parent!!, it))
         }
     }
 
@@ -82,17 +88,16 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
 
         var centroid = sourceList.maxBy { it.wordMapSize() }!!
 
-        println("[Cluster] first centroid idx : ${centroid.path}")
+        println("[Cluster] first centroid : ${centroid.path}")
 
         addCentroid(centroid)
-//        centroidList.add(centroid)
 
         for(i in 1..k)
         {
             var shortestDistance: Double = Double.MAX_VALUE
             var pickedCenteroid : SourceFile? = null
 
-            sourceList.forEach{
+            sourceList.filter { it.wordMapSize() > 50 }.forEach{
                 val dis = cosDistance(centroid, it)
 
                 if(shortestDistance == dis && !clusterList.keys.contains(it) && it.tfIdfMap.size > pickedCenteroid!!.tfIdfMap.size) {
@@ -105,6 +110,9 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
                 }
             }
 
+            if(pickedCenteroid == null)
+                return
+
             println("[Cluster] current  (${centroid.path}) tf-idf map : ${centroid.tfIdfMap}")
             println("[Cluster] selected (${pickedCenteroid?.path}) tf-idf map : ${pickedCenteroid?.tfIdfMap}")
             println("[Cluster] distance : $shortestDistance")
@@ -114,36 +122,46 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
             addCentroid(pickedCenteroid!!);
         }
 
-        for(i in 1..iter)
-        {
-            assign()
+//        assign()
 
-            var rc = 0
-            var iterator = clusterList.iterator()
-            val newCentroid : MutableList<SourceFile> = mutableListOf()
-            while(iterator.hasNext())
-            {
-                val it = iterator.next()
-                val next = findCentroid(it.value)
-
-                if(next != null && it.key != next)
-                {
-                    rc++
-                    iterator.remove()
-                    newCentroid.add(next!!)
-//                    addCentroid(next!!)
-                }
-            }
-
-            newCentroid.forEach{
-                addCentroid(it)
-            }
-            println("[Cluster] seq : $i  reselected centroid count : $rc \\n ${clusterList.size}")
-        }
+//        for(i in 1..iter)
+//        {
+//            assign()
+//
+//            var rc = 0
+//            var iterator = clusterList.iterator()
+//            val newCentroid : MutableList<SourceFile> = mutableListOf()
+//            while(iterator.hasNext())
+//            {
+//                val it = iterator.next()
+//                val next = findCentroid(it.value)
+//
+//                if(next != null && it.key != next)
+//                {
+//                    rc++
+//                    iterator.remove()
+//                    newCentroid.add(next!!)
+////                    addCentroid(next!!)
+//                }
+//            }
+//
+//            newCentroid.forEach{
+//                addCentroid(it)
+//            }
+//            println("[Cluster] seq : $i  reselected centroid count : $rc \\n ${clusterList.size}")
+//        }
 
         println("------------------------Result of Clustering")
         assign()
         println(clusterList)
+
+        val gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(SourceFile::class.java, SimplifySerializer()).create()
+
+        Paths.get(PATH_RESULT, "cluster", "cluster_$k.json").toFile().printWriter().use { out->
+            out.print(
+                    gson.toJson(clusterList)
+            )
+        }
     }
 
     fun findCentroid(set:MutableSet<SourceFile>) : SourceFile?

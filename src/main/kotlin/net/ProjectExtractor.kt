@@ -8,13 +8,13 @@ import data.Repository
 import java.io.PrintWriter
 import java.nio.file.Path
 
-class ProjectExtractor(val savePath: Path)
+class ProjectExtractor(val savePath: Path, val year:Int)
 {
     fun extract(page : Int = 0)
     {
         var results = HashMap<String, Repository>()
         var totalCount = 0
-        val requestBuilder = RequestBuilder()
+        val requestBuilder = RequestBuilder(year)
 
         if(savePath.toFile().exists())
             results = Gson().fromJson(savePath.toFile().readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
@@ -30,7 +30,7 @@ class ProjectExtractor(val savePath: Path)
 
             search?.let {
                 search.items.forEach({
-                    if(!results.containsKey(it.full_name)) {
+                    if(!results.containsKey(it.full_name) && it.size < 2048000 && it.language.equals("Java")) {
                         results.put(it.full_name, it);
                         println("added ${it.full_name}")
                     }

@@ -1,17 +1,19 @@
 package data
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import common.FileUtils
-import common.KEY_COMMENT
-import common.KEY_SOURCE
+import com.google.gson.*
+import common.*
 import nlp.PreProcessor
 import java.io.File
+import java.lang.reflect.Type
 import java.nio.file.Paths
 
 class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile> = mutableListOf())
 {
     companion object {
+        fun getAll()
+        {
+
+        }
         fun File.toSaveFile() : File
         {
             return Paths.get(this.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile()
@@ -19,6 +21,9 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
 
         fun load(root: File) : ProjectModel
         {
+            if(root.name.equals(NAME_PROJECT_MODEL))
+                return Gson().fromJson(root.readText(), ProjectModel::class.java);
+
             val saveFile = root.toSaveFile();
             return Gson().fromJson(saveFile.readText(), ProjectModel::class.java);
         }
@@ -26,7 +31,8 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         fun create(root: File) : ProjectModel
         {
             val project = ProjectModel(root.path)
-            val saveFile = Paths.get(root.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile();
+            val savePath = "C:\\Research\\data"
+            val saveFile = Paths.get(savePath, root.path.substringAfter("\\Repository"),"list_source.json").toFile();
             var success = 0
             var failed = 0
 
@@ -54,13 +60,22 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         }
 
         fun createOrLoad(root: File): ProjectModel {
-            val saveFile = Paths.get(root.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile();
+            val saveFile = Paths.get(root.path.replace("D:", "C:").replace("Research\\Repository","Research\\data"), "list_source.json").toFile();
 
             if(saveFile.exists())
                 return load(root)
             else
                 return create(root)
         }
+    }
+
+    fun save(saveFile:File)
+    {
+        saveFile.printWriter().use {
+            it.print(GsonBuilder().setPrettyPrinting().create().toJson(this))
+        }
+
+        println("saved ${saveFile.path}")
     }
 
     fun add(path:String, comLen:Int, srcLen:Int, wordMap:HashMap<String, HashMap<String, Int>>)
@@ -71,6 +86,15 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
     fun add(sourceFile:SourceFile)
     {
         sourceList.add(sourceFile)
+    }
+}
+
+class SimplifySerializer : JsonSerializer<SourceFile>
+{
+    override fun serialize(src: SourceFile?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+        val json = JsonObject()
+        json.addProperty("path", src!!.path);
+        return json
     }
 }
 
@@ -110,3 +134,4 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
         return result
     }
 }
+

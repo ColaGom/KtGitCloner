@@ -1,20 +1,9 @@
 package ml
 
 import com.google.gson.*
-import data.SourceFile
 import java.lang.reflect.Type
 
 class Cluster() {
-    companion object {
-        fun save() {
-
-        }
-
-        fun load() {
-
-        }
-    }
-
     var centroidIdx:Int = 0
     private val memberList: MutableList<Node> = mutableListOf()
 
@@ -28,6 +17,11 @@ class Cluster() {
 
     fun addMember(member: Node) {
         memberList.add(member)
+    }
+
+    fun addMember(list: List<Node>)
+    {
+        memberList.addAll(list)
     }
 
     fun getMemberList() : List<Node> {
@@ -69,7 +63,6 @@ class Cluster() {
         memberList.removeIf{
             !it.equals(getCentroid())
         }
-
         centroidIdx = 0
     }
 

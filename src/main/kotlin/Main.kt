@@ -1,7 +1,4 @@
-import com.github.javaparser.JavaParser
-import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.kittinunf.fuel.core.ResponseDeserializable
-import com.gno.pa.common.Annotator
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -11,20 +8,15 @@ import data.Repository
 import data.SourceFile
 import git.Cloner
 import git.CommitExtractor
-import ml.Cluster
 import ml.Kmeans
 import ml.Node
-import ml.SimpleSerializer
-import net.ProjectExtractor
 import nlp.PreProcessor
-import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.streams.asStream
 
 

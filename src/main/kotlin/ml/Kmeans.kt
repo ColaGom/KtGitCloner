@@ -2,11 +2,9 @@ package ml
 
 import java.util.*
 
-class Kmeans(val k: Int, val iter: Int = 100) : Clustering(k) {
+class Kmeans(k: Int, val iter: Int = 100) : Clustering(k) {
     override fun clustering(nodeList: List<Node>) {
-
-        val start = System.currentTimeMillis()
-        println("[Kmeans]start Clustering size : ${nodeList.size} at : ${start}")
+        super.clustering(nodeList)
 
         for (i in 1..k) {
             val cluster = Cluster()
@@ -21,18 +19,17 @@ class Kmeans(val k: Int, val iter: Int = 100) : Clustering(k) {
             clusters.add(cluster)
         }
 
-        println("[Kmeans]initialize centroids : ${clusters.map { it.getCentroid().fileName }}")
+        log("initialize centroids : ${clusters.map { it.getCentroid().fileName }}")
 
         var count = 0
 
         while (true) {
-            println("start step - 1 ${System.currentTimeMillis() - start}")
+            log("start step - 1")
             clusters.forEach {
                 it.clearMember()
             }
 
-            println("start step - 2 ${System.currentTimeMillis() - start}")
-
+            log("start step - 2")
             val centroidSet = getCentroidSet()
 
             nodeList.filter { !centroidSet.contains(it.fileName) }.parallelStream().forEach { node ->
@@ -41,7 +38,7 @@ class Kmeans(val k: Int, val iter: Int = 100) : Clustering(k) {
 
             var flag = false
 
-            println("start step - 3 ${System.currentTimeMillis() - start}")
+            log("start step - 3")
             clusters.parallelStream().forEach {
                 if (it.updateCentroid())
                     flag = true
@@ -51,10 +48,11 @@ class Kmeans(val k: Int, val iter: Int = 100) : Clustering(k) {
             if (!flag || count == iter)
                 break
 
-            println("updated Centroid ${count} centroids : ${clusters.map { it.getCentroid().fileName }} ${System.currentTimeMillis() - start}")
+            log("updated Centroid ${count} centroids : ${clusters.map { it.getCentroid().fileName }}")
         }
 
-        println("-------------------Finisehd clustering ${System.currentTimeMillis() - start}")
+        log("Finished clustering")
+        printAnalysis()
     }
 
     fun getCentroidSet(): HashSet<String> {

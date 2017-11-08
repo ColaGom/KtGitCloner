@@ -72,6 +72,12 @@ class BagOfWord(val root: File) {
 
         println("[BagOfWord]generate ${saveFile.path} success : ${success} failed : ${failed}")
 
+        saveFile.printWriter().use {
+            it.print(GsonBuilder().setPrettyPrinting().create().toJson(mapBow))
+        }
+
+        println("saved ${saveFile.path}")
+
         return mapBow
     }
 
@@ -100,6 +106,6 @@ class BagOfWord(val root: File) {
     }
 
     private fun File.toSaveFile(name: String = NAME_BOW): File {
-        return Paths.get(path.replace("Research\\Repository", "Research\\data"), name).toFile();
+        return Paths.get(path.replace("D:", "C:").replace("Research\\Repository", "Research\\data"), name).toFile();
     }
 }

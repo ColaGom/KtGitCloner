@@ -1,4 +1,7 @@
+import com.github.javaparser.JavaParser
+import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.kittinunf.fuel.core.ResponseDeserializable
+import com.gno.pa.common.Annotator
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -8,12 +11,14 @@ import data.Repository
 import data.SourceFile
 import git.Cloner
 import git.CommitExtractor
-import javafx.collections.transformation.SortedList
 import ml.Cluster
-import ml.Searcher
+import ml.Kmeans
+import ml.Node
+import ml.SimpleSerializer
 import net.ProjectExtractor
+import nlp.PreProcessor
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
 import org.knowm.xchart.BitmapEncoder
-import org.knowm.xchart.CategoryChartBuilder
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
 import java.io.File
@@ -39,10 +44,16 @@ fun printAllCloneCommand() {
         if (target.language != null && target.language.equals("Java") && target.size < 2048000) {
             val path = "$cloneDir/${target.full_name}"
             if (!File(path).exists()) {
-                val cmd = "git clone ${target.clone_url} ${path.replace("C:/","D:/")}";
+                val cmd = "git clone ${target.clone_url} ${path.replace("C:/", "D:/")}";
                 println(cmd)
             }
         }
+    }
+}
+
+fun loadAllProjectModelFile(name:String): Sequence<File> {
+    return File(PATH_DATA).walkTopDown().filter {
+        it.name.equals(name)
     }
 }
 
@@ -63,13 +74,13 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
     var srcLen = 0.0;
     var pSrcLen = 0.0;
 
-    File(PATH_DATA).walkTopDown().filter{
-        it.name.equals(NAME_PROJECT_MODEL)
+    File(PATH_DATA).walkTopDown().filter {
+        it.name.equals(NAME_PROJECT_MODEL_CLEAN)
     }.forEach {
         val project = ProjectModel.load(it)
-        val projectWordSet : MutableSet<String> = mutableSetOf()
-        val projectSrcWordSet : MutableSet<String> = mutableSetOf()
-        val projectComWordSet : MutableSet<String> = mutableSetOf()
+        val projectWordSet: MutableSet<String> = mutableSetOf()
+        val projectSrcWordSet: MutableSet<String> = mutableSetOf()
+        val projectComWordSet: MutableSet<String> = mutableSetOf()
 
         projectWordSet.clear()
         projectSrcWordSet.clear()
@@ -80,10 +91,10 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
                 if (it.value > thr) {
                     val key = it.key
 
-                    if(!projectWordSet.contains(key))
+                    if (!projectWordSet.contains(key))
                         projectWordSet.add(key)
 
-                    if(!projectComWordSet.contains(key))
+                    if (!projectComWordSet.contains(key))
                         projectComWordSet.add(key)
                 }
             }
@@ -92,10 +103,10 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
                 if (it.value > thr) {
                     val key = it.key
 
-                    if(!projectWordSet.contains(key))
+                    if (!projectWordSet.contains(key))
                         projectWordSet.add(key)
 
-                    if(!projectSrcWordSet.contains(key))
+                    if (!projectSrcWordSet.contains(key))
                         projectSrcWordSet.add(key)
                 }
             }
@@ -103,21 +114,21 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
         }
 
         projectComWordSet.forEach {
-            if(comWordSet.containsKey(it))
+            if (comWordSet.containsKey(it))
                 comWordSet.set(it, comWordSet.get(it)!! + 1)
             else
                 comWordSet.put(it, 1)
         }
 
         projectSrcWordSet.forEach {
-            if(srcWordSet.containsKey(it))
+            if (srcWordSet.containsKey(it))
                 srcWordSet.set(it, srcWordSet.get(it)!! + 1)
             else
                 srcWordSet.put(it, 1)
         }
 
         projectWordSet.forEach {
-            if(wordSet.containsKey(it))
+            if (wordSet.containsKey(it))
                 wordSet.set(it, wordSet.get(it)!! + 1)
             else
                 wordSet.put(it, 1)
@@ -125,8 +136,8 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
 
         if (srcLen - pSrcLen >= 100) {
             println("add ${srcLen}")
-            val preSrcLen = if(srcWordLenList.isEmpty()) 0.0 else srcWordLenList.last()
-            val preComLen = if(comWordLenList.isEmpty()) 0.0 else comWordLenList.last()
+            val preSrcLen = if (srcWordLenList.isEmpty()) 0.0 else srcWordLenList.last()
+            val preComLen = if (comWordLenList.isEmpty()) 0.0 else comWordLenList.last()
 
             pSrcLen = srcLen
             srcLenList.add(srcLen)
@@ -165,10 +176,10 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
 
     BitmapEncoder.saveBitmapWithDPI(chart, "$resultDir\\${limit}_${suffix}.png", BitmapEncoder.BitmapFormat.PNG, 200);
 
-    File(resultDir,"${limit}_srcWordSet_${suffix}.json").printWriter().use {
+    File(resultDir, "${limit}_srcWordSet_${suffix}.json").printWriter().use {
         it.print(GsonBuilder().setPrettyPrinting().create().toJson(srcWordSet.filter { it.value > limit }.toList().sortedBy { it.second }.reversed()))
     }
-    File(resultDir,"${limit}_comWordSet_${suffix}.json").printWriter().use {
+    File(resultDir, "${limit}_comWordSet_${suffix}.json").printWriter().use {
         it.print(GsonBuilder().setPrettyPrinting().create().toJson(comWordSet.filter { it.value > limit }.toList().sortedBy { it.second }.reversed()))
     }
 
@@ -183,32 +194,28 @@ fun analysis1(limit: Int = 0, thr: Int = 0, suffix: String) {
     BitmapEncoder.saveBitmapWithDPI(chart2, "$resultDir\\${limit}_${suffix}_add.png", BitmapEncoder.BitmapFormat.PNG, 200);
 }
 
-fun cleanSourceFile(source:SourceFile)
-{
-    source.wordMap.values.forEach{
+fun cleanSourceFile(source: SourceFile) {
+    source.wordMap.values.forEach {
         val iter = it.iterator()
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             val value = iter.next()
             val key = value.key
 
-            if(key.length <= 2 || key.length >= 20)
-            {
+            if (key.length <= 2 || key.length >= 20) {
                 iter.remove()
             }
         }
     }
 }
 
-fun printBaseInfo()
-{
+fun printBaseInfo() {
     var totalSrcLen: Long = 0
     var totalComLen: Long = 0
     var totalFileCount: Long = 0
     var projectCount = 0
 
-    File(PATH_DATA).walkTopDown().asStream().parallel().filter{
-        it.name.equals(NAME_PROJECT_MODEL)
+    File(PATH_DATA).walkTopDown().asStream().parallel().filter {
+        it.name.equals(NAME_PROJECT_MODEL_CLEAN)
     }.forEach {
         val project = ProjectModel.load(it)
         projectCount++
@@ -223,8 +230,7 @@ fun printBaseInfo()
     println("src Len : $totalSrcLen / com Len : $totalComLen / fileCount : $totalFileCount / project Count : $projectCount")
 }
 
-fun cleanProject(root:File)
-{
+fun cleanProject(root: File) {
     println("[cleanProject]${root.path}")
     root.walkTopDown().filter {
         it.isFile && !it.path.contains(".git") && !it.extension.equals("java") && !it.extension.equals("md")
@@ -233,121 +239,167 @@ fun cleanProject(root:File)
     }
 }
 
+fun getAllDirectories(root:File) : List<File>
+{
+    return root.walk().filter { it.isDirectory }.toList()
+}
 
-fun main(args: Array<String>) {
+fun getAllFilesExt(root:File, ext:String) : List<File>
+{
+    return root.walk().filter { it.extension.equals(ext) }.toList()
+}
 
-    val file = Paths.get(PATH_RESULT, "cluster", "cluster_547.json").toFile();
-    val clusterList : HashMap<String, SortedMap<String, Double>> = Gson().fromJson(file.readText(), object : TypeToken<HashMap<String, SortedMap<String, Double>>>() {}.type)
-    val newList : HashMap<String, Map<String, Double>> = hashMapOf()
+data class Source(val path: String, val imports: MutableList<String> = mutableListOf(), val methodCalls: MutableList<String> = mutableListOf())
+data class Project(val projectName: String, val sourceList: MutableList<Source> = mutableListOf())
 
-    clusterList.forEach{
-        current->
-        newList.put(current.key, current.value.toList().sortedBy { it.second }.reversed().toMap())
+fun HashMap<String, Int>.tfidfQuery(idfMap : HashMap<String, Double>) : HashMap<String, Double>
+{
+    val result : HashMap<String, Double> = hashMapOf()
+
+    this.forEach { key, value ->
+        if(idfMap.containsKey(key))
+            result.put(key, (0.5 + 0.5 * value) * Math.log(idfMap.size / idfMap.get(key)!!))
     }
 
-    Paths.get(PATH_RESULT, "cluster", "cluster_547_test.json").toFile().printWriter().use { out->
-        out.print(
-                GsonBuilder().setPrettyPrinting().create().toJson(newList)
-        )
+    return result;
+}
+
+fun HashMap<String, Int>.tfidfDoc(idfMap : HashMap<String, Double>) : HashMap<String, Double>
+{
+    val result : HashMap<String, Double> = hashMapOf()
+
+    this.forEach { key, value ->
+        result.put(key, Math.log(value.toDouble()) * Math.log(idfMap.size / idfMap.get(key)!!))
     }
-    return
 
-    val target: MutableList<SourceFile> = mutableListOf()
+    return result;
+}
 
-    run outer@ {
-        File(PATH_DATA).walkTopDown().filter{
-            it.name.equals(NAME_PROJECT_MODEL)
-        }.forEach {
-            val rnd = Random()
-            val project = ProjectModel.load(it)
-            val sourceList = project.sourceList.filter { it.wordMapSize() > 20 }
+fun kmeanClustering(size:Int, idfMap:HashMap<String, Double>)
+{
+    val startTime = System.currentTimeMillis()
+    val nodeList : MutableList<Node> = mutableListOf()
 
-            if(sourceList.size == 0)
-                return@forEach
+    println("kmeanClustering[$size| $startTime")
 
-            if (sourceList.size > 600)
-                target.addAll(sourceList.subList(0, rnd.nextInt(600)))
-            else
-                target.addAll(sourceList.subList(0, rnd.nextInt(sourceList.size)))
+    run extract@ {
+        loadAllProjectModelFile(NAME_PROJECT_MODEL_CLEAN).forEach {
+            val project = ProjectModel.load(it);
 
-            if (target.size > 300000)
-                return@outer
+            nodeList.addAll(project.sourceList.map { Node(it.path, it.getMergedMap()!!.tfidfDoc(idfMap)) })
+
+            if(nodeList.size > size)
+                return@extract
         }
     }
 
-    val c = Cluster(target)
-    c.clustering(iter = 10)
-    return
+    val kmean = Kmeans(Math.sqrt(nodeList.size.toDouble()).toInt())
+    kmean.clustering(nodeList)
+    Paths.get(PATH_RESULT, "cluster", "kmean_${nodeList.size}.json").toFile().printWriter().use {
+        it.print(Gson().toJson(kmean.clusters))
+    }
+
+    println("elapsed milli sec ${System.currentTimeMillis() - startTime }")
+}
+
+fun searchTopK(k:Int = 300, query:File) : SortedSet<Pair<String, Double>>
+{
+    val idfMap : HashMap<String, Double> = Gson().fromJson(File("map_idf.json").readText(), object:TypeToken<HashMap<String, Double>>() {}.type);
+
+    val startTime = System.currentTimeMillis()
+    println("start Search $startTime / ${idfMap.size}")
+
+    val target = PreProcessor(query.readText()).toSourceFile(query.path)
+
+    val node = Node("query" , target.getMergedMap()!!.tfidfQuery(idfMap))
+
+    val result : SortedSet<Pair<String, Double>> = sortedSetOf( compareByDescending {it.second})
+
+    loadAllProjectModelFile(NAME_PROJECT_MODEL_CLEAN).forEach {
+        val project = ProjectModel.load(it);
+
+        project.sourceList.map{ Node(it.path, it.getMergedMap()!!.tfidfDoc(idfMap)) }.forEach {
+            if(result.size < 300)
+            {
+                result.add(Pair(it.fileName, it.distanceTo(node)))
+            }
+            else
+            {
+                val last = result.last()
+                val distance = it.distanceTo(node)
+                if(last.second < distance)
+                {
+                    result.remove(last)
+                    result.add(Pair(it.fileName, distance))
+                }
+            }
+        }
+    }
+
+    println("elapsed milli sec ${System.currentTimeMillis() - startTime }")
+
+    return result
+}
+
+fun extractTargetCommit()
+{
+    val target: HashMap<String, Repository> = Gson().fromJson(File("target_map.json").readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
+
+    target.values.forEach {
+        println("extract ${it.toRoot().path}")
+        val saveFile = File("D:\\gitExp_gameengine\\${it.full_name.replace("/","_")}.json")
+
+        if(saveFile.exists())
+            return@forEach
+
+        val data = CommitExtractor(it.toRoot().path).extractCommitMetaData(500)
+
+        saveFile.printWriter().use {
+            it.print(Gson().toJson(data))
+        }
+    }
+}
 
 
-    analysis1(0,suffix = "new2")
-    analysis1(10,suffix = "new2")
-    return
-    printBaseInfo()
-    return
-    println(CommitExtractor("C:\\Research\\Repository\\apache\\incubator-pirk").extractCommitMetaData().size)
-    return
-    printAllCloneCommand()
-    return
-    for(i in 2008..2017)
-        ProjectExtractor(Paths.get(PATH_PROJECT_MAP), i).extract()
-    return
-    analysis1(10, suffix = "modify2")
+fun main(args: Array<String>) {
+
+    val idfMap : HashMap<String, Double> = Gson().fromJson(File("map_idf.json").readText(), object:TypeToken<HashMap<String, Double>>() {}.type);
+
+    kmeanClustering(10000, idfMap);
+    kmeanClustering(50000, idfMap);
+    kmeanClustering(100000, idfMap);
+    kmeanClustering(150000, idfMap);
+    kmeanClustering(300000, idfMap);
+
     return
 
-
-    Projects.getAllProjects().forEach {
-        cleanProject(it)
+    val s = searchTopK(query = File("C:\\Research\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\StringUtils.java"))
+    Paths.get(PATH_RESULT, "search_top300_tfidf.json").toFile().printWriter().use {
+        it.print(GsonBuilder().setPrettyPrinting().create().toJson(s))
     }
     return
-
-    Projects.getAllProjects().forEach {
-        val project = ProjectModel.load(it)
-    }
-    return
-    Projects.getAllProjects().forEach {
-        val name = it.path.replace("C:\\Research\\Repository\\" ,"").replace("\\","_") +".json"
-        val savePath = Paths.get("D:\\gitExp", name);
-        println("gitExplorer.jar ${it.path} $savePath")
-
-    }
-    return
-    Projects.getAllProjects().filter { !it.toSaveFile().exists() }.forEach {
-        ProjectModel.create(it)
-    }
-    return
-//    val target: MutableList<SourceFile> = mutableListOf()
+//    val idfMap:HashMap<String, Double> = hashMapOf()
 //
-//    run outer@ {
-//        Projects.getAllProjects().filter { it.toSaveFile().exists() }.forEach {
-//            val project = ProjectModel.load(it)
+//    loadAllProjectModelFile(NAME_PROJECT_MODEL_CLEAN).forEach {
+//        val project = ProjectModel.load(it)
 //
-//            if(project.sourceList.size > 100)
-//                target.addAll(project.sourceList.subList(0, 100))
-//            else
-//                target.addAll(project.sourceList)
+//        project.sourceList.forEach {
+//            it.getMergedMap()!!.keys.forEach {
+//                if(idfMap.containsKey(it))
+//                    idfMap.set(it, idfMap.get(it)!! + 1)
+//                else
+//                    idfMap.put(it, 1.0)
+//            }
 //        }
 //    }
 //
-//    val query = ProjectModel.load(File("C:\\Research\\Repository\\h2database\\h2database"))
-//            .sourceList.find { it.path.contains("MathUtils.java") }
-//
-//    println(GsonBuilder().setPrettyPrinting().create().toJson(query))
-//
-//    println(Searcher(query!!, target).run().toList().filter { !it.second.isNaN() }.sortedBy { pair -> pair.second }.reversed().subList(0, 30))
-//    return
-
-
-
-
-    return
-    printAllCloneCommand()
-    return
-
-//    FileUtils.readAllFiles(File("C:/Research/data"), NAME_FREQ_SNOW).forEach {
-//
+//    File("map_idf.json").printWriter().use {
+//        it.print(GsonBuilder().setPrettyPrinting().create().toJson(idfMap))
 //    }
+//
+//    return
 }
+
 
 private fun cloneAll() {
     Cloner(PATH_PROJECT_MAP).cloneAll()

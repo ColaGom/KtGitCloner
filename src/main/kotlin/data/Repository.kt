@@ -2,6 +2,9 @@ package data
 
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
+import common.Projects
+import java.io.File
+import java.nio.file.Paths
 
 data class Repository(
         val id : Int,
@@ -75,6 +78,13 @@ data class Repository(
         val score : Float,
         val Owner : Owner
 ) {
+    fun toRoot() : File
+    {
+        if(File(Projects.ROOT , full_name).exists())
+            return File(Projects.ROOT , full_name);
+
+        return File(Projects.ROOT2 , full_name);
+    }
 
     class Deserializer : ResponseDeserializable<Repository> {
         override fun deserialize(content: String): Repository? {

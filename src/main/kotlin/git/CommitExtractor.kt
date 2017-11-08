@@ -71,7 +71,7 @@ class CommitExtractor(val rootPath:String)
         return mapChangeInfo
     }
 
-    fun extractCommitMetaData(limit:Int = 5000): List<CommitMeta> {
+    fun extractCommitMetaData(limit:Int = 4000): List<CommitMeta> {
         val git = Git(this.repo)
         val itr = git.log().all().call()
         val listCommitMeta : MutableList<git.CommitMeta>  = mutableListOf()
@@ -91,6 +91,7 @@ class CommitExtractor(val rootPath:String)
             if(listCommitMeta.size > limit)
                 break
         }
+
         return listCommitMeta
     }
 }

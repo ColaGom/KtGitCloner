@@ -57,8 +57,7 @@ class PreProcessor(var raw: String) {
         val srcFreqMap : HashMap<String, Int> = hashMapOf()
         val comFreqMap : HashMap<String, Int> = hashMapOf()
 
-
-        strSource.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toList().forEach {
+        strSource.toLowerCase().split(" ").filter { it.length > 2 && it.length < 20 && !Stopwords.instance.contains(it) }.toList().forEach {
             stemmer.setCurrent(it)
             stemmer.stem()
             val key = stemmer.current
@@ -68,7 +67,7 @@ class PreProcessor(var raw: String) {
                 srcFreqMap.put(key, 1)
         }
 
-        strComment.toLowerCase().split(" ").filter { it.length > 2 && !Stopwords.instance.contains(it) }.toList().forEach {
+        strComment.toLowerCase().split(" ").filter { it.length > 2 && it.length < 20 && !Stopwords.instance.contains(it) }.toList().forEach {
             stemmer.setCurrent(it)
             stemmer.stem()
             val key = stemmer.current

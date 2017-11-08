@@ -1,196 +1,133 @@
 package ml
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonSerializer
-import common.PATH_DATA
-import common.PATH_RESULT
-import data.SimplifySerializer
+import com.google.gson.*
 import data.SourceFile
-import java.io.File
-import java.nio.file.Paths
-import java.util.*
-import kotlin.collections.HashMap
+import java.lang.reflect.Type
 
-class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, Int> = hashMapOf(), var totalSize:Int=0) {
+class Cluster() {
+    companion object {
+        fun save() {
 
-    init {
-        println("[Cluster] init")
-        sourceList.forEach {
-            totalSize += 1
-            it.wordMap.forEach {
-                it.value.forEach {
-                    val key = it.key
-                    if(mergedDoc.containsKey(key))
-                        mergedDoc.set(key, mergedDoc.get(key)!! + 1)
-                    else
-                        mergedDoc.put(key, 1)
-                }
+        }
+
+        fun load() {
+
+        }
+    }
+
+    var centroidIdx:Int = 0
+    private val memberList: MutableList<Node> = mutableListOf()
+
+    fun getCentroid() = memberList.get(centroidIdx)
+
+    fun setCentroid(centroid:Node)
+    {
+        memberList.add(centroid)
+        centroidIdx = memberList.lastIndex
+    }
+
+    fun addMember(member: Node) {
+        memberList.add(member)
+    }
+
+    fun getMemberList() : List<Node> {
+        return memberList.filterIndexed { index, node -> index != centroidIdx }
+    }
+
+    fun mean(): Double {
+        var sum = 0.0
+
+        memberList.parallelStream().forEach {
+            sum += getCentroid().distanceTo(it)
+        }
+
+        return sum / size()
+    }
+
+    fun updateCentroid() : Boolean {
+        var maxValue = getCentroid().mean(memberList)
+        var maxIdx = centroidIdx
+
+        memberList.forEachIndexed { index, node ->
+            val current = node.mean(memberList)
+
+            if(current > maxValue)
+            {
+                maxValue = current
+                maxIdx = index
             }
         }
 
-        println("[Cluster] totalSize : $totalSize")
-
-        sourceList.forEach { src->
-            src.tfIdfMap = hashMapOf()
-            src.wordMap.values.forEach {
-                it.forEach{
-                    src.tfIdfMap.put(it.key, tfIdf(it.key, src));
-                }
-            }
+        if(centroidIdx != maxIdx) {
+            centroidIdx = maxIdx
+            return true
         }
+        return false
     }
 
-    /**
-     * k means ++
-     * 1. pick randomly centroid
-     * 2. pick next centroid that has farest distance from current centroid
-     * 3. k loop step .2 count of k
-     * 4. clustering and assign
-     *
-     * size k is root n (n is doc size)
-     */
-//    var centroidList : MutableList<SourceFile> = mutableListOf()
-
-    // centroid / child
-    var clusterList : HashMap<SourceFile, HashMap<SourceFile, Double>> = hashMapOf()
-
-    fun addCentroid(src:SourceFile)
-    {
-        clusterList.put(src, hashMapOf())
-    }
-
-    fun addChild(centroid:SourceFile, child:SourceFile, cos:Double )
-    {
-        clusterList.get(centroid)?.put(child, cos)
-    }
-
-    fun removeCentroid(src:SourceFile)
-    {
-        clusterList.remove(src)
-    }
-
-    fun assign()
-    {
-        // cluster sets
-        clusterList.values.forEach{
-            it.clear()
+    fun clearMember() {
+        memberList.removeIf{
+            !it.equals(getCentroid())
         }
 
-        sourceList.filter { !clusterList.keys.contains(it) }.forEach {
-            val parent = clusterList.keys.maxBy { sourceFile -> cosDistance(sourceFile, it) }
-            addChild(parent!!, it, cosDistance(parent!!, it))
-        }
+        centroidIdx = 0
     }
 
-    fun clustering(k:Int = Math.sqrt(sourceList.size.toDouble()).toInt(), iter:Int)
-    {
-        println("[Cluster] start size : ${sourceList.size} k : $k")
+    fun size() = memberList.size
+}
 
-        var centroid = sourceList.maxBy { it.wordMapSize() }!!
-
-        println("[Cluster] first centroid : ${centroid.path}")
-
-        addCentroid(centroid)
-
-        for(i in 1..k)
+class SimpleSerializer : JsonSerializer<Any>
+{
+    override fun serialize(src: Any?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+        if(src is Node)
         {
-            var shortestDistance: Double = Double.MAX_VALUE
-            var pickedCenteroid : SourceFile? = null
-
-            sourceList.filter { it.wordMapSize() > 50 }.forEach{
-                val dis = cosDistance(centroid, it)
-
-                if(shortestDistance == dis && !clusterList.keys.contains(it) && it.tfIdfMap.size > pickedCenteroid!!.tfIdfMap.size) {
-                    shortestDistance = dis
-                    pickedCenteroid = it
-                }
-                if(shortestDistance > dis && !clusterList.keys.contains(it)) {
-                    shortestDistance = dis
-                    pickedCenteroid = it
-                }
-            }
-
-            if(pickedCenteroid == null)
-                return
-
-            println("[Cluster] current  (${centroid.path}) tf-idf map : ${centroid.tfIdfMap}")
-            println("[Cluster] selected (${pickedCenteroid?.path}) tf-idf map : ${pickedCenteroid?.tfIdfMap}")
-            println("[Cluster] distance : $shortestDistance")
-            println("----------------------------------------------------")
-
-            centroid = pickedCenteroid!!
-            addCentroid(pickedCenteroid!!);
+            val json = JsonObject()
+            json.addProperty("fileName", src.fileName);
+            return json
         }
+        return Gson().toJsonTree(src)
+    }
+}
 
-//        assign()
+data class Node(val fileName: String, val v: HashMap<String, Double>) {
+    override fun equals(other: Any?): Boolean {
+        if (other is Node)
+            return other.fileName.equals(fileName)
 
-//        for(i in 1..iter)
+        return super.equals(other)
+    }
+
+    fun distanceTo(dst: Node): Double {
+//        val v1 = this.v
+//        val v2 = dst.v
+//
+//        var union = 0
+//        var inter = 0
+//
+//
+//        if(v1 != null && v2 != null)
 //        {
-//            assign()
+//            v1.values.forEach { union += it }
+//            v2.values.forEach { union += it }
 //
-//            var rc = 0
-//            var iterator = clusterList.iterator()
-//            val newCentroid : MutableList<SourceFile> = mutableListOf()
-//            while(iterator.hasNext())
-//            {
-//                val it = iterator.next()
-//                val next = findCentroid(it.value)
+//            val both = v1.keys.toHashSet()
+//            both.retainAll(v2.keys.toHashSet())
 //
-//                if(next != null && it.key != next)
-//                {
-//                    rc++
-//                    iterator.remove()
-//                    newCentroid.add(next!!)
-////                    addCentroid(next!!)
-//                }
+//            both.forEach {
+//                inter += v1.get(it)!!
+//                inter += v2.get(it)!!
 //            }
 //
-//            newCentroid.forEach{
-//                addCentroid(it)
-//            }
-//            println("[Cluster] seq : $i  reselected centroid count : $rc \\n ${clusterList.size}")
+//            return inter / union.toDouble()
 //        }
+//
+//        return 0.0
 
-        println("------------------------Result of Clustering")
-        assign()
-        println(clusterList)
+//Using Cosine measure (just tf)
+        val v1 = this.v
+        val v2 = dst.v
 
-        val gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(SourceFile::class.java, SimplifySerializer()).create()
-
-        Paths.get(PATH_RESULT, "cluster", "cluster_$k.json").toFile().printWriter().use { out->
-            out.print(
-                    gson.toJson(clusterList)
-            )
-        }
-    }
-
-    fun findCentroid(set:MutableSet<SourceFile>) : SourceFile?
-    {
-        var min = Double.MAX_VALUE
-        var centroid:SourceFile? = null
-
-        set.forEach { current->
-            var mean = 0.0
-            set.forEach {
-                val distance = cosDistance(current, it)
-                mean += distance
-            }
-
-            if(min > mean) {
-                min = mean
-                centroid = current
-            }
-        }
-
-        return centroid
-    }
-
-    fun cosDistance(src: SourceFile, src2 :SourceFile) : Double
-    {
-        val v1 = src.tfIdfMap
-        val v2 = src2.tfIdfMap
-
-        if(v1 != null && v2 != null) {
+        if (v1 != null && v2 != null) {
 
             val both = v1.keys.toHashSet()
             both.retainAll(v2.keys.toHashSet())
@@ -205,30 +142,17 @@ class Cluster(val sourceList:List<SourceFile>, val mergedDoc : HashMap<String, I
                 norm2 += v2.get(k)!! * v2.get(k)!!
 
             return sclar / Math.sqrt(norm1 * norm2)
-        }
-        else
+        } else
             return 0.0
     }
 
-    fun tfIdf(term:String, src : SourceFile) : Double
-    {
-        return tf(term,src) * idf(term)
-    }
+    fun mean(nodes: List<Node>): Double {
+        var sum = 0.0
 
-    fun tf(term:String, src : SourceFile) : Double
-    {
-        var tf = 0;
-
-        src.wordMap.forEach{
-            if(it.value.containsKey(term))
-                tf += it.value.get(term)!!
+        nodes.forEach {
+            sum += distanceTo(it)
         }
 
-        return tf / src.wordMapSize().toDouble()
-    }
-
-    fun idf(term:String) : Double
-    {
-        return Math.log(totalSize.toDouble() / mergedDoc.get(term)!!)
+        return sum / nodes.size
     }
 }

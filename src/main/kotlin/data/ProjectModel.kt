@@ -19,9 +19,14 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
             return Paths.get(this.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile()
         }
 
+        fun loadSourceFile(root:File, sourcePath:String) : SourceFile
+        {
+            return Gson().fromJson(root.readText(), ProjectModel::class.java).sourceList.find { it.path.equals(sourcePath) }!!
+        }
+
         fun load(root: File) : ProjectModel
         {
-            if(root.name.equals(NAME_PROJECT_MODEL))
+            if(root.name.equals(NAME_PROJECT_MODEL) || root.name.equals(NAME_PROJECT_MODEL_CLEAN))
                 return Gson().fromJson(root.readText(), ProjectModel::class.java);
 
             val saveFile = root.toSaveFile();
@@ -100,8 +105,6 @@ class SimplifySerializer : JsonSerializer<SourceFile>
 
 data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wordMap:HashMap<String,HashMap<String, Int>>)
 {
-    var tfIdfMap : HashMap<String, Double> = hashMapOf();
-
     override fun toString(): String {
         return path
     }
@@ -121,15 +124,18 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
 
     fun getMergedMap() : HashMap<String, Int>?
     {
-        val result : HashMap<String, Int>? = wordMap.get(KEY_SOURCE)
+        val result : HashMap<String, Int> = hashMapOf()
+        result.putAll(wordMap.get(KEY_SOURCE)!!)
 
         wordMap.get(KEY_COMMENT)?.forEach {
             val key = it.key
-            if(result!!.containsKey(key))
+            if(result.containsKey(key))
                 result.set(key, result.get(key)!! + it.value)
             else
                 result.put(key, it.value)
         }
+
+        wordMap.values.forEach {  }
 
         return result
     }

@@ -19,7 +19,7 @@ open class Clustering(val k:Int)
 
     fun log(msg:String)
     {
-        println("[$name] $msg ${startTime - System.currentTimeMillis()}")
+        println("[$name] $msg ${System.currentTimeMillis() - startTime}")
     }
 
     fun getSSE() : Double
@@ -27,7 +27,9 @@ open class Clustering(val k:Int)
         var sse = 0.0
 
         clusters.forEach {
-            sse += Math.pow(it.getCentroid().mean(it.getMemberList()),2.0)
+            val mean = it.getCentroid().mean(it.memberList)
+            if(!mean.isNaN())
+                sse += Math.pow(mean,2.0)
         }
 
         return sse
@@ -38,7 +40,9 @@ open class Clustering(val k:Int)
         var sse = 0.0
 
         clusters.forEach {
-            sse += Math.pow(it.getCentroid().mean(it.getMemberList()), 2.0)
+            val mean = it.getCentroid().mean(it.memberList)
+            if(!mean.isNaN())
+                sse += Math.pow(mean,2.0)
         }
 
         return sse

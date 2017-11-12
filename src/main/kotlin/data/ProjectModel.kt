@@ -122,6 +122,17 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
         return result
     }
 
+    fun wordCount() : Int
+    {
+        var result = 0;
+
+        wordMap.forEach{
+            result  += it.value.size
+        }
+
+        return result
+    }
+
     fun getMergedMap() : HashMap<String, Int>?
     {
         val result : HashMap<String, Int> = hashMapOf()

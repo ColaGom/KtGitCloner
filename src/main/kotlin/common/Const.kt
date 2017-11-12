@@ -13,4 +13,4 @@ const val KEY_SOURCE = "key.source"
 
 const val PATH_RESULT = "C:/Research/Result"
 const val PATH_DATA = "C:/Research/Data"
-const val PATH_PROJECT_MAP = "projects_map.json"
+const val PATH_PROJECT_MAP = "project_map.json"

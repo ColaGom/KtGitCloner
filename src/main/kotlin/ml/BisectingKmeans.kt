@@ -43,7 +43,7 @@ class BisectingKmeans(k:Int, val iter:Int = 3) : Clustering(k)
                 }
             }
 
-            currentNodeList = clusters.get(maxIdx).getMemberList()
+            currentNodeList = clusters.get(maxIdx).memberList
             clusters.removeAt(maxIdx)
         }
 

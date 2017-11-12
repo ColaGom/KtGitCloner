@@ -5,7 +5,7 @@ import java.lang.reflect.Type
 
 class Cluster() {
     var centroidIdx:Int = 0
-    private val memberList: MutableList<Node> = mutableListOf()
+    val memberList: MutableList<Node> = mutableListOf()
 
     fun getCentroid() = memberList.get(centroidIdx)
 
@@ -24,9 +24,6 @@ class Cluster() {
         memberList.addAll(list)
     }
 
-    fun getMemberList() : List<Node> {
-        return memberList.filterIndexed { index, node -> index != centroidIdx }
-    }
 
     fun mean(): Double {
         var sum = 0.0
@@ -134,7 +131,8 @@ data class Node(val fileName: String, val v: HashMap<String, Double>) {
             for (k in v2.keys)
                 norm2 += v2.get(k)!! * v2.get(k)!!
 
-            return sclar / Math.sqrt(norm1 * norm2)
+            val result = sclar / Math.sqrt(norm1 * norm2)
+            return if (result.isNaN()) 0.0 else result
         } else
             return 0.0
     }

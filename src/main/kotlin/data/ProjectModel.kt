@@ -16,7 +16,7 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         }
         fun File.toSaveFile() : File
         {
-            return Paths.get(this.path.replace("Research\\Repository","Research\\data"), "list_source.json").toFile()
+            return Paths.get(this.path.replace("Research\\Repository","Research\\data"), NAME_PROJECT_MODEL).toFile()
         }
 
         fun loadSourceFile(root:File, sourcePath:String) : SourceFile
@@ -37,7 +37,7 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         {
             val project = ProjectModel(root.path)
             val savePath = "C:\\Research\\data"
-            val saveFile = Paths.get(savePath, root.path.substringAfter("\\Repository"),"list_source.json").toFile();
+            val saveFile = Paths.get(savePath, root.path.substringAfter("\\Repository"), NAME_PROJECT_MODEL).toFile();
             var success = 0
             var failed = 0
 
@@ -64,8 +64,8 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
             return project
         }
 
-        fun createOrLoad(root: File): ProjectModel {
-            val saveFile = Paths.get(root.path.replace("D:", "C:").replace("Research\\Repository","Research\\data"), "list_source.json").toFile();
+        fun loadOrCreate(root: File): ProjectModel {
+            val saveFile = Paths.get(root.path.replace("E:", "C:").replace("Research\\Repository","Research\\data"), NAME_PROJECT_MODEL).toFile();
 
             if(saveFile.exists())
                 return load(root)

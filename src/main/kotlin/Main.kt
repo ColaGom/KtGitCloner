@@ -8,7 +8,6 @@ import data.Repository
 import data.SourceFile
 import git.Cloner
 import git.CommitExtractor
-import jdk.nashorn.internal.parser.DateParser
 import ml.Cluster
 import ml.Kmeans
 import ml.Node
@@ -27,7 +26,7 @@ import java.util.*
 //count of list, count of set
 //count of line
 fun File.toSaveFile(): File {
-    return Paths.get(this.path.replace("Research\\Repository", "Research\\data"), "list_source.json").toFile()
+    return Paths.get(this.path.replace("Research\\Repository", "Research\\data"), NAME_PROJECT_MODEL).toFile()
 }
 
 fun printAllCloneCommand() {
@@ -48,7 +47,7 @@ fun printAllCloneCommand() {
 }
 
 fun loadAllProjectModelFile(name:String): Sequence<File> {
-    return File(PATH_DATA).walkTopDown().filter {
+    return File(PATH_DATA).walk().filter {
         it.name.equals(name)
     }
 }
@@ -450,6 +449,12 @@ val T2 = "C:\\Research\\Repository\\zxing\\zxing\\core\\src\\main\\java\\com\\go
 fun mbToKB(mb:Int) : Int = mb * 1024;
 
 fun main(args: Array<String>) {
+    File("E:/Repository").listFiles().map { it.listFiles() }.forEach {
+        it.forEach {
+            val project = ProjectModel.loadOrCreate(it);
+        }
+    }
+    return
     printAllCloneCommand()
     return
     val c = Calendar.getInstance()

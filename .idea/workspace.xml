@@ -2,20 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="166c3b73-0c40-4142-b100-84edcdb98e0c" name="Default" comment="update features">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/projects_map.json" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/META-INF/KtGitCloner_main.kotlin_module" afterPath="$PROJECT_DIR$/out/production/classes/META-INF/KtGitCloner_main.kotlin_module" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/kotlin/ml/Node.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/MainKt.class" afterPath="$PROJECT_DIR$/out/production/classes/MainKt.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/SearchResponse$Deserializer.class" afterPath="$PROJECT_DIR$/out/production/classes/SearchResponse$Deserializer.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/SearchResponse.class" afterPath="$PROJECT_DIR$/out/production/classes/SearchResponse.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/common/Const.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/common/Const.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -28,7 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/KtGitCloner$MainKt.coverage" NAME="MainKt Coverage Results" MODIFIED="1509541147484" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/KtGitCloner$MainKt.coverage" NAME="MainKt Coverage Results" MODIFIED="1510661005058" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
@@ -77,11 +74,31 @@
       <file leaf-file-name="Main.kt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/Main.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="96">
-              <caret line="586" column="1" lean-forward="true" selection-start-line="586" selection-start-column="1" selection-end-line="586" selection-end-column="1" />
+            <state relative-caret-position="274">
+              <caret line="560" column="45" lean-forward="false" selection-start-line="560" selection-start-column="45" selection-end-line="560" selection-end-column="45" />
               <folding>
-                <element signature="e#0#658#0" expanded="true" />
+                <element signature="e#0#717#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Node.kt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Node.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="190">
+              <caret line="10" column="8" lean-forward="false" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Kmeans.kt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="304">
+              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -99,62 +116,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Const.kt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/common/Const.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="14" column="10" lean-forward="false" selection-start-line="14" selection-start-column="10" selection-end-line="14" selection-end-column="10" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ProjectExtractor.kt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="31" column="25" lean-forward="true" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RequestBuilder.kt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="12" column="33" lean-forward="false" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PreProcessor.kt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/nlp/PreProcessor.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-95">
-              <caret line="23" column="8" lean-forward="false" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Kmeans.kt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="BisectingKmeans.kt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="45" column="61" lean-forward="false" selection-start-line="45" selection-start-column="61" selection-end-line="45" selection-end-column="61" />
+            <state relative-caret-position="114">
+              <caret line="6" column="0" lean-forward="false" selection-start-line="7" selection-start-column="10" selection-end-line="49" selection-end-column="36" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ProjectModel.kt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="430">
+              <caret line="148" column="21" lean-forward="false" selection-start-line="148" selection-start-column="21" selection-end-line="148" selection-end-column="21" />
+              <folding>
+                <element signature="e#14#155#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -162,8 +141,8 @@
       <file leaf-file-name="Clustering.kt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="29" column="58" lean-forward="false" selection-start-line="29" selection-start-column="58" selection-end-line="29" selection-end-column="58" />
+            <state relative-caret-position="245">
+              <caret line="42" column="58" lean-forward="false" selection-start-line="42" selection-start-column="58" selection-end-line="42" selection-end-column="58" />
               <folding />
             </state>
           </provider>
@@ -172,8 +151,8 @@
       <file leaf-file-name="Cluster.kt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="54" column="9" lean-forward="false" selection-start-line="54" selection-start-column="9" selection-end-line="54" selection-end-column="9" />
+            <state relative-caret-position="207">
+              <caret line="66" column="31" lean-forward="false" selection-start-line="66" selection-start-column="31" selection-end-line="66" selection-end-column="31" />
               <folding>
                 <element signature="e#12#66#0" expanded="true" />
               </folding>
@@ -194,36 +173,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>searchTopK</find>
-      <find>clean</find>
-      <find>idf</find>
-      <find>clu</find>
-      <find>step - 2</find>
-      <find>Cos</find>
-      <find>source</find>
-      <find>fun main</find>
-      <find>search</find>
-      <find>mean</find>
-      <find>update</find>
-      <find>tfidf</find>
-      <find>sse</find>
-      <find>kmean</find>
-      <find>log</find>
-      <find>getsse</find>
-      <find>searchtopk</find>
-      <find>main</find>
-      <find>Main</find>
-      <find>getmember</find>
-      <find>bisec</find>
-      <find>PATH_</find>
+      <find>list_source</find>
+      <find>NAME_PROJECT_MODEL_CLEAN</find>
+      <find>createor`</find>
+      <find>createorAndLoad</find>
+      <find>list_source.json</find>
+      <find />
+      <find>&quot;list_source.json&quot;</find>
+      <find>getnodelist</find>
+      <find>clear</find>
+      <find>getNodeList</find>
+      <find>CLEAN</find>
+      <find>cleanSourceFile</find>
       <find>cleanpro</find>
-      <find>package</find>
-      <find>extract</find>
-      <find>projectex</find>
-      <find>q</find>
-      <find>main()</find>
+      <find>limit</find>
+      <find>thr</find>
+      <find>analysis1</find>
+      <find>.matches(</find>
+      <find>toLowerCase()</find>
+      <find>analy</find>
+      <find>printbase</find>
+      <find>fromjson</find>
+      <find>analysis</find>
+      <find>searchtest</find>
+      <find>loadSourceFile(</find>
+      <find>search</find>
+      <find>path_</find>
+      <find>stringutils.java</find>
+      <find>tfidf</find>
+      <find>main</find>
       <find>main(</find>
-      <find>size</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -581,14 +560,16 @@
         <option value="$PROJECT_DIR$/src/main/kotlin/distance/Cosine.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/nlp/PreProcessor.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/TopicModeling.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/common/Const.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Node.java" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Node.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/Main.kt" />
       </list>
     </option>
@@ -600,8 +581,8 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="540" />
-    <option name="y" value="146" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1096" />
   </component>
@@ -906,7 +887,7 @@
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="SearchEverywhereHistoryKey" value="Cluster&#9;FILE&#9;file://C:/Users/bchoi/Documents/GitHub/KtGitCloner/src/main/kotlin/ml/Cluster.kt&#10;Kmean&#9;FILE&#9;file://C:/Users/bchoi/Documents/GitHub/KtGitCloner/src/main/kotlin/ml/BisectingKmeans.kt&#10;Node&#9;null&#9;null&#10;Pre&#9;FILE&#9;file://C:/Users/GOM/IdeaProjects/KtGitCloner/src/main/kotlin/nlp/PreProcessor.kt&#10;Clu&#9;FILE&#9;file://C:/Users/GOM/IdeaProjects/KtGitCloner/src/main/kotlin/ml/Cluster.kt&#10;Sourc&#9;null&#9;null&#10;Source&#9;FILE&#9;jar://C:/Program Files/Java/jdk1.8.0_111/src.zip!/com/sun/org/apache/bcel/internal/classfile/SourceFile.java&#10;gradle&#9;ACTION&#9;ActivateGradleToolWindow&#10;Plugin&#9;ACTION&#9;WelcomeScreen.Plugins" />
+    <property name="SearchEverywhereHistoryKey" value="Cluster&#9;FILE&#9;file://C:/Users/GOM/IdeaProjects/KtGitCloner/src/main/kotlin/ml/Cluster.kt&#10;Kmean&#9;FILE&#9;file://C:/Users/bchoi/Documents/GitHub/KtGitCloner/src/main/kotlin/ml/BisectingKmeans.kt&#10;Node&#9;null&#9;null&#10;Pre&#9;FILE&#9;file://C:/Users/GOM/IdeaProjects/KtGitCloner/src/main/kotlin/nlp/PreProcessor.kt&#10;Clu&#9;FILE&#9;file://C:/Users/GOM/IdeaProjects/KtGitCloner/src/main/kotlin/ml/Cluster.kt&#10;Sourc&#9;null&#9;null&#10;Source&#9;FILE&#9;jar://C:/Program Files/Java/jdk1.8.0_111/src.zip!/com/sun/org/apache/bcel/internal/classfile/SourceFile.java&#10;gradle&#9;ACTION&#9;ActivateGradleToolWindow&#10;Plugin&#9;ACTION&#9;WelcomeScreen.Plugins" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="project.propCompiler" />
   </component>
@@ -1212,7 +1193,21 @@
       <option name="project" value="LOCAL" />
       <updated>1510127167177</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="update features">
+      <created>1510491005819</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1510491005819</updated>
+    </task>
+    <task id="LOCAL-00017" summary="update features">
+      <created>1510571423743</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1510571423743</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1236,12 +1231,15 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="1.0" sideWeight="0.47121534" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5846314" sideWeight="0.52878463" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31568018" sideWeight="0.52878463" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917964" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23294243" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917964" sideWeight="0.4936034" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20415778" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1254,10 +1252,7 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917964" sideWeight="0.4936034" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -1303,38 +1298,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.5.1/361e1b0d919d4996f04db3990f349e47bf2e9a54/javaparser-core-3.5.1-sources.jar!/com/github/javaparser/ast/CompilationUnit.java" />
-    <entry file="jar://$PROJECT_DIR$/lib/ProjectAnnotate.jar!/com/gno/pa/net/SpotlightService.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="16" column="24" lean-forward="false" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/ProjectAnnotate.jar!/com/gno/pa/net/SpotlightClient.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="23" column="31" lean-forward="false" selection-start-line="23" selection-start-column="31" selection-end-line="23" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stop_words.json" />
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_111/jre/lib/rt.jar!/sun/nio/fs/WindowsFileSystemProvider.class" />
-    <entry file="jar://$PROJECT_DIR$/lib/ProjectAnnotate.jar!/com/gno/pa/common/Annotator.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="67" column="31" lean-forward="true" selection-start-line="67" selection-start-column="31" selection-end-line="67" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/common/Projects.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/common/BagOfWord.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="893">
@@ -1534,70 +1497,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="131" column="0" lean-forward="false" selection-start-line="131" selection-start-column="0" selection-end-line="131" selection-end-column="0" />
-          <folding>
-            <element signature="e#14#155#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/nlp/PreProcessor.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-95">
-          <caret line="23" column="8" lean-forward="false" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
+        <state relative-caret-position="209">
+          <caret line="12" column="33" lean-forward="false" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+        <state relative-caret-position="285">
+          <caret line="31" column="25" lean-forward="false" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="45" column="61" lean-forward="false" selection-start-line="45" selection-start-column="61" selection-end-line="45" selection-end-column="61" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="29" column="58" lean-forward="false" selection-start-line="29" selection-start-column="58" selection-end-line="29" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="54" column="9" lean-forward="false" selection-start-line="54" selection-start-column="9" selection-end-line="54" selection-end-column="9" />
-          <folding>
-            <element signature="e#12#66#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/common/Const.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="14" column="10" lean-forward="false" selection-start-line="14" selection-start-column="10" selection-end-line="14" selection-end-column="10" />
+        <state relative-caret-position="114">
+          <caret line="6" column="31" lean-forward="false" selection-start-line="6" selection-start-column="31" selection-end-line="6" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/RequestBuilder.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Node.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="12" column="33" lean-forward="false" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+        <state relative-caret-position="76">
+          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/nlp/PreProcessor.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-437">
+          <caret line="8" column="18" lean-forward="false" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
           <folding />
         </state>
       </provider>
@@ -1613,20 +1548,104 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/net/ProjectExtractor.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Cluster.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="31" column="25" lean-forward="true" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
+        <state relative-caret-position="207">
+          <caret line="66" column="31" lean-forward="false" selection-start-line="66" selection-start-column="31" selection-end-line="66" selection-end-column="31" />
+          <folding>
+            <element signature="e#12#66#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Clustering.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="42" column="58" lean-forward="false" selection-start-line="42" selection-start-column="58" selection-end-line="42" selection-end-column="58" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Research/Data/52North/SOS/list_source.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/BisectingKmeans.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="6" column="0" lean-forward="false" selection-start-line="7" selection-start-column="10" selection-end-line="49" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/data/ProjectModel.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="430">
+          <caret line="148" column="21" lean-forward="false" selection-start-line="148" selection-start-column="21" selection-end-line="148" selection-end-column="21" />
+          <folding>
+            <element signature="e#14#155#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Research/Test/StringUtil (3).java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Research/Test/StringUtil (4).java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Research/Test/StringUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Research/Test/Strings (2).java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Kmeans.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/ml/Node.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="10" column="8" lean-forward="false" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/Main.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="586" column="1" lean-forward="true" selection-start-line="586" selection-start-column="1" selection-end-line="586" selection-end-column="1" />
+        <state relative-caret-position="274">
+          <caret line="560" column="45" lean-forward="false" selection-start-line="560" selection-start-column="45" selection-end-line="560" selection-end-column="45" />
           <folding>
-            <element signature="e#0#658#0" expanded="true" />
+            <element signature="e#0#717#0" expanded="true" />
           </folding>
         </state>
       </provider>

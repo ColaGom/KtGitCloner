@@ -27,7 +27,7 @@ open class Clustering(val k:Int)
         var sse = 0.0
 
         clusters.forEach {
-            val mean = it.getCentroid().mean(it.memberList)
+            val mean = it.getCentroid().mean(it.getNodes())
             if(!mean.isNaN())
                 sse += Math.pow(mean,2.0)
         }
@@ -40,7 +40,7 @@ open class Clustering(val k:Int)
         var sse = 0.0
 
         clusters.forEach {
-            val mean = it.getCentroid().mean(it.memberList)
+            val mean = it.getCentroid().mean(it.getNodes())
             if(!mean.isNaN())
                 sse += Math.pow(mean,2.0)
         }

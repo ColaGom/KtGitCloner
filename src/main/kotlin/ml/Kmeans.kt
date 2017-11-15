@@ -7,15 +7,15 @@ class Kmeans(k: Int, val iter: Int = 100) : Clustering(k) {
         super.clustering(nodeList)
 
         for (i in 1..k) {
-            val cluster = Cluster()
+            val cluster = Cluster(nodeList)
             var picked:Int
 
             do{
                 picked = Random().nextInt(nodeList.size)
             }
-            while(getCentroidSet().contains(nodeList.get(picked).fileName))
+            while(getCentroidSet().contains(picked))
 
-            cluster.setCentroid(nodeList.get(picked))
+            cluster.centroid = picked
             clusters.add(cluster)
         }
 
@@ -32,9 +32,10 @@ class Kmeans(k: Int, val iter: Int = 100) : Clustering(k) {
             log("start step - 2")
             val centroidSet = getCentroidSet()
 
-            nodeList.filter { !centroidSet.contains(it.fileName) }.parallelStream().forEach { node ->
-                clusters.maxBy { it.getCentroid().distanceTo(node) }!!.addMember(node)
-            }
+            nodeList.filterIndexed { index, node -> !centroidSet.contains(index) }
+                    .forEachIndexed { index, node ->
+                        clusters.maxBy { it.getCentroid().distanceTo(node) }!!.addMember(index)
+                    }
 
             var flag = false
 
@@ -55,9 +56,9 @@ class Kmeans(k: Int, val iter: Int = 100) : Clustering(k) {
         printAnalysis()
     }
 
-    fun getCentroidSet(): HashSet<String> {
+    fun getCentroidSet(): HashSet<Int> {
         return clusters.map{
-            it.getCentroid().fileName
+            it.centroid
         }.toHashSet()
     }
 }

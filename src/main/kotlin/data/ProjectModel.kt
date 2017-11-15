@@ -125,12 +125,13 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
     fun wordCount() : Int
     {
         var result = 0;
+        val set : MutableSet<String> = mutableSetOf()
 
-        wordMap.forEach{
-            result  += it.value.size
+        wordMap.values.forEach {
+            set.addAll(it.keys)
         }
 
-        return result
+        return set.size
     }
 
     fun getMergedMap() : HashMap<String, Int>?
@@ -145,9 +146,6 @@ data class SourceFile(val path:String, val comLen : Int, val srcLen:Int, val wor
             else
                 result.put(key, it.value)
         }
-
-        wordMap.values.forEach {  }
-
         return result
     }
 }

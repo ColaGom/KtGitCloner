@@ -1,7 +1,7 @@
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.51-release-IJ2017.2-1'
+    ext.kotlin_version = '1.1.51'
     ext.fuel_version = '1.11.0'
 
     repositories {
@@ -31,7 +31,7 @@ dependencies {
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.6'
     compile "com.github.kittinunf.fuel:fuel:$fuel_version"
     compile "com.github.kittinunf.fuel:fuel-gson:$fuel_version"
-    compile 'com.github.javaparser:javaparser-core:3.5.1'
+    compile 'com.github.javaparser:javaparser-core:3.5.3'
 }
 
 compileKotlin {

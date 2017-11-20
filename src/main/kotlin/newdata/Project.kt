@@ -10,6 +10,11 @@ import java.nio.file.Paths
 data class Project (val root:String, val sourceList:MutableList<SourceFile> = mutableListOf())
 {
     companion object {
+        fun load(file:File) : Project
+        {
+            return Gson().fromJson(file.readText(), Project::class.java);
+        }
+
         fun create(root:String)
         {
             val saveFile = Paths.get(PATH_DATA, root.substringAfter("\\Repository"), NAME_PROJECT).toFile();

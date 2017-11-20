@@ -1,5 +1,4 @@
 import com.github.javaparser.JavaParser
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
@@ -16,9 +15,7 @@ import ml.Kmeans
 import ml.Node
 import net.ProjectExtractor
 import newdata.Project
-import newdata.SourceAnalyst
 import nlp.PreProcessor
-import nlp.PreProcessor.Companion.regNonAlphanum
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -27,8 +24,6 @@ import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 
 //소스 파일 bag of words
@@ -639,6 +634,134 @@ fun methodSim(querySet:List<String>,resultSet:List<String>) :Double
     return totalMax / querySet.size.toDouble()
 }
 
+fun analysisNew2()
+{
+    val importsMap : HashMap<String,Int> = hashMapOf()
+    val cmtClassMap : HashMap<String,Int> = hashMapOf()
+    val cmtMethodMap : HashMap<String,Int> = hashMapOf()
+    val cmtVarMap : HashMap<String,Int> = hashMapOf()
+    val nameParamMap : HashMap<String,Int> = hashMapOf()
+    val nameMethodMap : HashMap<String,Int> = hashMapOf()
+    val nameClassMap : HashMap<String,Int> = hashMapOf()
+    val nameVarMap : HashMap<String,Int> = hashMapOf()
+    val typeMethodMap : HashMap<String,Int> = hashMapOf()
+    val typeParamMap : HashMap<String,Int> = hashMapOf()
+    val typeVarMap : HashMap<String,Int> = hashMapOf()
+
+    loadAllProjectModelFile(NAME_PROJECT).forEach {
+        val project = Project.load(it)
+
+        project.sourceList.forEach {
+
+            it.commentsClassOrInterface.forEach {
+                cmtClassMap.increase(it.key, it.value)
+            }
+
+            it.commentsMethod.forEach {
+                cmtMethodMap.increase(it.key, it.value)
+            }
+
+            it.commentsVariable.forEach {
+                cmtVarMap.increase(it.key, it.value)
+            }
+
+            it.imports.forEach {
+                importsMap.increase(it.key, it.value)
+            }
+
+            it.nameClassOrInterface.forEach {
+                nameClassMap.increase(it.key, it.value)
+            }
+
+            it.nameMethod.forEach {
+                nameMethodMap.increase(it.key, it.value)
+            }
+
+            it.nameVariable.forEach {
+                nameVarMap.increase(it.key, it.value)
+            }
+
+            it.nameParameter.forEach {
+                nameParamMap.increase(it.key, it.value)
+            }
+
+            it.typeMethod.forEach {
+                typeMethodMap.increase(it.key, it.value)
+            }
+
+            it.typeParameter.forEach {
+                typeParamMap.increase(it.key, it.value)
+            }
+
+            it.typeVariable.forEach {
+                typeVarMap.increase(it.key, it.value)
+            }
+        }
+    }
+
+    println("total : ")
+}
+
+
+fun analysisNew()
+{
+    val totalMap : HashMap<String,Int> = hashMapOf()
+
+    loadAllProjectModelFile(NAME_PROJECT).forEach {
+        val project = Project.load(it)
+
+        project.sourceList.forEach {
+
+            it.commentsClassOrInterface.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.commentsMethod.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.commentsVariable.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.imports.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.nameClassOrInterface.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.nameMethod.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.nameVariable.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.nameParameter.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.typeMethod.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.typeParameter.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+
+            it.typeVariable.forEach {
+                totalMap.increase(it.key, it.value)
+            }
+        }
+    }
+
+    var all = totalMap.values.sum()
+
+    println("total map size : ${totalMap.size} all : $all")
+}
 
 val T1 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\StringUtils.java" // 51
 val T2 = "E:\\Repository\\zxing\\zxing\\core\\src\\main\\java\\com\\google\\zxing\\common\\detector\\MathUtils.java"
@@ -647,13 +770,15 @@ val T4 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\m
 val T5 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\SocketUtils.java"
 val T6 = "E:\\Repository\\google\\guava\\guava\\src\\com\\google\\common\\base\\CharMatcher.java"
 
-fun main(args: Array<String>) {
+fun HashMap<String, Int>.increase(key:String, value:Int)
+{
+    if(containsKey(key))
+        set(key, get(key)!! + value)
+    else
+        put(key, value)
+}
 
-    File("E:/Repository").listFiles().map { it.listFiles() }.forEach {
-        it.forEach {
-            Project.create(it.path)
-        }
-    }
+fun main(args: Array<String>) {
 
     return
 

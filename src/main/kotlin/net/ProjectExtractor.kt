@@ -1,7 +1,6 @@
 package net
 
 import SearchResponse
-import com.github.javaparser.metamodel.JavaParserMetaModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken

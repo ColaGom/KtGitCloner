@@ -88,7 +88,7 @@ class ProjectModel(val rootPath:String, var sourceList : MutableList<SourceFile>
         sourceList.add(SourceFile(path, comLen, srcLen, wordMap))
     }
 
-    fun add(sourceFile:SourceFile)
+    fun add(sourceFile: SourceFile)
     {
         sourceList.add(sourceFile)
     }

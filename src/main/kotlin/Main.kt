@@ -1,3 +1,6 @@
+import com.github.javaparser.JavaParser
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.kittinunf.fuel.core.ResponseDeserializable
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -12,7 +15,10 @@ import ml.Cluster
 import ml.Kmeans
 import ml.Node
 import net.ProjectExtractor
+import newdata.Project
+import newdata.SourceAnalyst
 import nlp.PreProcessor
+import nlp.PreProcessor.Companion.regNonAlphanum
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -321,13 +327,29 @@ fun getAllFilesExt(root:File, ext:String) : List<File>
 data class Source(val path: String, val imports: MutableList<String> = mutableListOf(), val methodCalls: MutableList<String> = mutableListOf())
 data class Project(val projectName: String, val sourceList: MutableList<Source> = mutableListOf())
 
+fun normValue(map: HashMap<String, Int>, idfMap:HashMap<String, Long>) : Double
+{
+    var norm = 0.0;
+
+    map.filter { idfMap.containsKey(it.key) }.forEach{
+        norm += Math.pow(tfidf(it, idfMap), 2.0)
+    }
+
+    return 1 / Math.sqrt(norm)
+}
+
+fun tfidf(entry:Map.Entry<String, Int>, idfMap:HashMap<String,Long>) : Double
+{
+    return (1+Math.log(entry.value.toDouble())) * Math.log(1 + idfMap.size / idfMap.get(entry.key)!!.toDouble())
+}
+
 
 fun HashMap<String, Int>.tfidfDoc(idfMap : HashMap<String, Long>) : HashMap<String, Double>
 {
     val result : HashMap<String, Double> = hashMapOf()
 
-    this.filter { idfMap.containsKey(it.key) }.forEach { key, value ->
-        result.put(key, 1 + Math.log(value.toDouble()) * Math.log(1 + idfMap.size / idfMap.get(key)!!.toDouble()))
+    this.filter { idfMap.containsKey(it.key) }.forEach {
+        result.put(it.key, tfidf(it, idfMap))
     }
 
     return result;
@@ -551,26 +573,180 @@ fun cleanAllProjectModels()
 }
 
 
-val T1 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\StringUtils.java"
+val regCamelCase = Regex(String.format("%s|%s|%s",
+        "(?<=[A-Z])(?=[A-Z][a-z])(\\B)",
+        "(?<=[^A-Z])(?=[A-Z])(\\B)",
+        "(?<=[A-Za-z])(?=[^A-Za-z])(\\B)"
+))
+
+fun similarity(a:String, b:String) : Double
+{
+    val aSet = regCamelCase.replace(a, " ").toLowerCase().split(" ").toHashSet()
+    val bSet = regCamelCase.replace(b, " ").toLowerCase().split(" ").toHashSet()
+
+    val union:HashSet<String> = hashSetOf()
+    union.addAll(aSet)
+    union.addAll(bSet)
+
+    aSet.retainAll(bSet) // 교집합
+
+    val inter = aSet.size
+
+    return inter.toDouble() / union.size
+}
+
+fun expandableScore(querySet:List<String>,resultSet:List<String>, threshold:Double = 0.35) : Int
+{
+    var count = 0
+
+    resultSet.forEach {
+        current->
+        var max = Double.MIN_VALUE
+
+        querySet.forEach {
+            val sim = similarity(current, it)
+
+            if(sim > max)
+                max = sim;
+        }
+
+        if(max <= threshold)
+            count++
+    }
+
+    return count
+}
+fun methodSim(querySet:List<String>,resultSet:List<String>) :Double
+{
+    var totalMax = 0.0
+
+    querySet.forEach {
+        current->
+        var max = 0.0
+
+        resultSet.forEach {
+            val sim = similarity(current, it)
+
+//            println("$current / $it = $sim")
+
+            if(sim > max)
+                max = sim;
+        }
+
+        totalMax += max;
+    }
+
+    return totalMax / querySet.size.toDouble()
+}
+
+
+val T1 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\StringUtils.java" // 51
 val T2 = "E:\\Repository\\zxing\\zxing\\core\\src\\main\\java\\com\\google\\zxing\\common\\detector\\MathUtils.java"
+val T3 = "E:\\Repository\\zyuanming\\MusicMan\\src\\org\\ming\\util\\FileUtils.java" // 20
+val T4 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\Base64Utils.java"
+val T5 = "E:\\Repository\\spring-projects\\spring-framework\\spring-core\\src\\main\\java\\org\\springframework\\util\\SocketUtils.java"
+val T6 = "E:\\Repository\\google\\guava\\guava\\src\\com\\google\\common\\base\\CharMatcher.java"
 
 fun main(args: Array<String>) {
-    val pfMap: HashMap<String, Long> = Gson().fromJson(File("pf_map.json").readText(), object:TypeToken<HashMap<String, Long>> (){}.type)
-    val dfMap : HashMap<String, Long> = Gson().fromJson(File("df_map.json").readText(), object:TypeToken<HashMap<String, Long>> (){}.type)
-    val idfMap : HashMap<String, Long> = hashMapOf()
-    idfMap.putAll(pfMap.filter { it.value > 1  })
-//    elapsed : 205469
-//    elapsed : 172212
-//    elapsed : 211847
-//    elapsed : 184227
-    println("${pfMap.size} / ${idfMap.size}")
+
+    File("E:/Repository").listFiles().map { it.listFiles() }.forEach {
+        it.forEach {
+            Project.create(it.path)
+        }
+    }
+
     return
 
-    searchTest(File(T1), Paths.get(PATH_RESULT, "t1_search_filter_result.json").toFile(), idfMap)
-    searchTest(File(T2), Paths.get(PATH_RESULT, "t2_search_filter_result.json").toFile(), idfMap)
 
-    searchTest(File(T1), Paths.get(PATH_RESULT, "t1_search_org_result.json").toFile(), dfMap)
-    searchTest(File(T2), Paths.get(PATH_RESULT, "t2_search_org_result.json").toFile(), dfMap)
+//    println(GsonBuilder().setPrettyPrinting().create().toJson(newdata.SourceFile.create(File(T6))))
+
+
+//    val dfMap : HashMap<String, Long> = Gson().fromJson(File("df_map.json").readText(), object:TypeToken<HashMap<String, Double>>() {}.type)
+//    val idfMap : HashMap<String, Long> = hashMapOf()
+//    idfMap.putAll(dfMap.filter { it.value > 19 && it.value < 600000 })
+//
+//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_org.json").toFile(), dfMap);
+//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_filter.json").toFile(), idfMap);
+//    val qp = JavaParser.parse(File(T6))
+////
+////    qp.findAll(MethodDeclaration::class.java).forEach {
+////        println(it.body)
+////    }
+//
+//    qp.findAll(ClassOrInterfaceDeclaration::class.java).forEach {
+//        println(it.comment.get())
+//    }
+//
+//    qp.findAll(ConstructorDeclaration::class.java).forEach {
+//        println("${it.name} : ${it.parameters}")
+//    }
+//
+//    qp.findAll(MethodDeclaration::class.java).forEach {
+//        println("${it.name} : ${it.parameters}")
+//    }
+
+    return
+    val target = T6
+    val searchMap : Set<Pair<String, Double>> =  Gson().fromJson(Paths.get(PATH_RESULT, "t5_filter.json").toFile().readText(), object:TypeToken<Set<Pair<String,Double>>> () {}.type)
+//    val origin : Set<Pair<String, Double>> =  Gson().fromJson(Paths.get(PATH_RESULT, "t1_search_org_result.json").toFile().readText(), object:TypeToken<Set<Pair<String,Double>>> () {}.type)
+
+    val queryParser = JavaParser.parse(File(target))
+    val set = queryParser.findAll(MethodDeclaration::class.java).map { it.name.toString() }.toHashSet()
+
+    var maxES = Int.MIN_VALUE
+    var minES = Int.MAX_VALUE
+    var totalES = 0
+
+    var maxMas = Double.MIN_VALUE
+    var minMas = Double.MAX_VALUE
+    var totalMas = 0.0
+    var size = 50;
+
+    println(set.size)
+    println(set)
+    return
+
+    searchMap.filter { !it.first.equals(target) }.take(50).forEach {
+        try {
+            val parser =JavaParser.parse(File(it.first))
+            val currentSet =  parser.findAll(MethodDeclaration::class.java).map { it.name.toString() }.toSet()
+
+            var es = expandableScore(set.toList(), currentSet.toList())
+            val ms = methodSim(set.toList(), currentSet.toList())
+
+            println("${it.first} es : $es")
+
+            if(es > maxES)
+                maxES = es
+
+            if(es < minES)
+                minES = es
+
+            if(ms > maxMas)
+                maxMas = ms
+
+            if(ms < minMas)
+                minMas = ms
+
+            totalMas += ms
+            totalES += es
+        }
+        catch (e:Exception)
+        {
+            size--
+            println("[error]${it.first}")
+            return@forEach
+        }
+
+    }
+
+    println("$minES / $maxES / ${totalES / size.toDouble()} / $minMas / $maxMas / ${totalMas / size}")
+    return
+    val pfMap: HashMap<String, Long> = Gson().fromJson(File("pf_map.json").readText(), object:TypeToken<HashMap<String, Long>> (){}.type)
+
+
+
+
     return
     analysis()
     return
@@ -654,7 +830,7 @@ fun main(args: Array<String>) {
 //    searchInNode(nodeList, node)
 //    return
 
-    val size = 100000
+//    val size = 100000
 //    kmeanClustering(getNodeList(300000, idfMap))
 //    kmeanClustering(getNodeList(500000, idfMap))
 //    return

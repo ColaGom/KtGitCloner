@@ -10,6 +10,8 @@ import common.Stopwords
 import nlp.PreProcessor.Companion.regCamelCase
 import nlp.PreProcessor.Companion.regHtml
 import nlp.PreProcessor.Companion.regNonAlphanum
+import org.apache.commons.math3.ml.clustering.Clusterable
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
 import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
 
@@ -149,8 +151,18 @@ class SourceAnalyst(val file:File)
         }
     }
 }
+class Test : Clusterable
+{
+    override fun getPoint(): DoubleArray {
+        val c = KMeansPlusPlusClusterer<Test>(3)
 
-data class SourceFile(
+        c.distanceMeasure
+
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
+
+data class SourceFile (
         val path:String,
         val imports:CountMap = CountMap(),
         val commentsClassOrInterface:CountMap = CountMap(),

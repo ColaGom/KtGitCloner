@@ -19,6 +19,7 @@ import newdata.CountMap
 import newdata.Project
 import newdata.SourceAnalyst
 import nlp.PreProcessor
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
@@ -1068,9 +1069,11 @@ fun HashMap<String, Int>.increase(key: String, value: Int) {
 }
 
 fun main(args: Array<String>) {
+
+    return
+
     var dfMap : Map<String, Int> = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<Map<String, Double>>() {}.type)
     val filterSet = dfMap.filter { it.value > 29 && it.value < 600000 }.keys
-
     loadAllProjectModelFile(NAME_PROJECT).forEach {
         try {
             val project = Project.load(it);

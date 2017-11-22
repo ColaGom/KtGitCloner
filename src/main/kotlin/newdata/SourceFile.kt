@@ -165,7 +165,24 @@ data class SourceFile(
         val nameParameter:CountMap = CountMap()
 )
 {
+    fun getAllWords() : HashSet<String>
+    {
+        val set : HashSet<String> = hashSetOf()
 
+        set.addAll(imports.keys)
+        set.addAll(commentsClassOrInterface.keys)
+        set.addAll(commentsMethod.keys)
+        set.addAll(commentsVariable.keys)
+        set.addAll(typeMethod.keys)
+        set.addAll(typeVariable.keys)
+        set.addAll(typeParameter.keys)
+        set.addAll(nameClassOrInterface.keys)
+        set.addAll(nameMethod.keys)
+        set.addAll(nameMethod.keys)
+        set.addAll(nameParameter.keys)
+
+        return set
+    }
 }
 
 class CountMap : HashMap<String, Int>()

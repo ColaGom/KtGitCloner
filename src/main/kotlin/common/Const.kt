@@ -8,6 +8,7 @@ const val NAME_PROJECT_MODEL = "list_source.json"
 const val NAME_PROJECT = "project_info.json"
 const val NAME_PROJECT_MODEL_CLEAN = "list_source_clean.json"
 const val NAME_PROJECT_MODEL_TF_IDF = "list_source_clean_tf_idf.json"
+const val NAME_PROJECT_FILTERED = "project_filtered.json"
 
 const val KEY_COMMENT = "key.comment"
 const val KEY_SOURCE = "key.source"

@@ -38,11 +38,6 @@ class SourceDataGenerator(val source:File)
         }
     }
 
-    fun lineToPair(line:String)
-    {
-
-    }
-
     val regexAnno = Regex("\\{.*?\\}")
     fun String.preprocessing() : List<String>
     {

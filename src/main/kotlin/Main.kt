@@ -27,6 +27,8 @@ import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
 import org.tartarus.snowball.ext.englishStemmer
+import vop.DataManager
+import vop.toPairList
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -1393,13 +1395,21 @@ fun extractDataSet()
 
 fun main(args: Array<String>) {
 
-    val map : HashMap<String, Int> = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<HashMap<String, Int>>() {}.type)
-    map.values.removeIf{
-        it < 30
-    }
-    Main.FILTER_WORD = map.keys.toHashSet()
+    println(File(T1).toPairList())
 
-    extractDataSet()
+    return
+    File("E:/Repository").listFiles().map { it.listFiles() }.forEach {
+        it.forEach {
+            DataManager.create(it)
+        }
+    }
+//    val map : HashMap<String, Int> = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<HashMap<String, Int>>() {}.type)
+//    map.values.removeIf{
+//        it < 30
+//    }
+//    Main.FILTER_WORD = map.keys.toHashSet()
+//
+//    extractDataSet()
 //    println(srcFileToDocument(File(T1)))
     return
 //    val j = Jaccard();
@@ -1554,11 +1564,7 @@ fun main(args: Array<String>) {
 
 
     return
-    File("E:/Repository").listFiles().map { it.listFiles() }.forEach {
-        it.forEach {
-            val project = ProjectModel.loadOrCreate(it);
-        }
-    }
+
     return
     printAllCloneCommand()
     return

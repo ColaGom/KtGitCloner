@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 buildscript {
     ext.kotlin_version = '1.1.60'
     ext.fuel_version = '1.11.0'
-    dl4j_version = '0.8.0'
+    ext.dl4j_version = '0.8.0'
 
     repositories {
         mavenCentral()
@@ -34,7 +34,7 @@ dependencies {
     compile "com.github.kittinunf.fuel:fuel:$fuel_version"
     compile "com.github.kittinunf.fuel:fuel-gson:$fuel_version"
     compile 'com.github.javaparser:javaparser-core:3.5.3'
-    compile group: "org.apache.opennlp", name: "opennlp-tools", version: "${opennlp.version}"
+    compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: "1.8.3"
     compile "org.deeplearning4j:deeplearning4j-core:${dl4j_version}"
     compile "org.nd4j:nd4j-native-platform:${dl4j_version}"
     compile "org.slf4j:slf4j-simple:1.7.25"

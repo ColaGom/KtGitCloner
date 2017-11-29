@@ -1,49 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="166c3b73-0c40-4142-b100-84edcdb98e0c" name="Default" comment="update features">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_apache_opennlp_opennlp_tools_1_8_3.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/net_sf_extjwnl_extjwnl_1_9_3.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/net_sf_extjwnl_extjwnl_data_wn31_1_2.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/kotlin/newdata/SourceData.kt" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_api_1_7_6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/lucene-core-7.1.0.jar" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/mallet.jar" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/weka.jar" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/kotlin/TopicModeling.kt" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_1_1_51.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_1_1_60.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_jre7_1_1_51.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_jre7_1_1_60.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_51.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_jetbrains_kotlin_kotlin_stdlib_jre8_1_1_60.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/ProjectAnnotate.jar" afterPath="$PROJECT_DIR$/libs/ProjectAnnotate.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/commons-math3-3.6.1.jar" afterPath="$PROJECT_DIR$/libs/commons-math3-3.6.1.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/java-string-similarity-1.0.0.jar" afterPath="$PROJECT_DIR$/libs/java-string-similarity-1.0.0.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/org.eclipse.jgit-4.9.0.201710071750-r.jar" afterPath="$PROJECT_DIR$/libs/org.eclipse.jgit-4.9.0.201710071750-r.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar" afterPath="$PROJECT_DIR$/libs/slf4j-api-1.7.25.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/slf4j-simple-1.7.25.jar" afterPath="$PROJECT_DIR$/libs/slf4j-simple-1.7.25.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/xchart-3.5.0.jar" afterPath="$PROJECT_DIR$/libs/xchart-3.5.0.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/lib/xchart-demo-3.5.0.jar" afterPath="$PROJECT_DIR$/libs/xchart-demo-3.5.0.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/META-INF/KtGitCloner_main.kotlin_module" afterPath="$PROJECT_DIR$/out/production/classes/META-INF/KtGitCloner_main.kotlin_module" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/MainKt.class" afterPath="$PROJECT_DIR$/out/production/classes/MainKt.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/SearchResponse$Deserializer.class" afterPath="$PROJECT_DIR$/out/production/classes/SearchResponse$Deserializer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/SearchResponse.class" afterPath="$PROJECT_DIR$/out/production/classes/SearchResponse.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/data/Owner.class" afterPath="$PROJECT_DIR$/out/production/classes/data/Owner.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/data/Repository$Deserializer.class" afterPath="$PROJECT_DIR$/out/production/classes/data/Repository$Deserializer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/data/Repository.class" afterPath="$PROJECT_DIR$/out/production/classes/data/Repository.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/classes/net/ProjectExtractor.class" afterPath="$PROJECT_DIR$/out/production/classes/net/ProjectExtractor.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/KtGitCloner.iml" afterPath="$PROJECT_DIR$/.idea/modules/KtGitCloner.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/KtGitCloner_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/KtGitCloner_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/KtGitCloner_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/KtGitCloner_test.iml" />
+    <list default="true" id="166c3b73-0c40-4142-b100-84edcdb98e0c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/clustering/Cluster.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/clustering/Cluster.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/clustering/KMeansPlusPlusClusterer.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/clustering/KMeansPlusPlusClusterer.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/common/Const.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/common/Const.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/common/Projects.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/common/Projects.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/data/Repository.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/data/Repository.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/kotlin/newdata/SourceFile.kt" afterPath="$PROJECT_DIR$/src/main/kotlin/newdata/SourceFile.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stop_words_def.txt" afterPath="$PROJECT_DIR$/stop_words_def.txt" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -105,8 +64,8 @@
       <file leaf-file-name="Main.kt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/Main.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="361">
-              <caret line="1389" column="10" lean-forward="true" selection-start-line="1389" selection-start-column="10" selection-end-line="1389" selection-end-column="10" />
+            <state relative-caret-position="304">
+              <caret line="1386" column="9" lean-forward="true" selection-start-line="1386" selection-start-column="9" selection-end-line="1386" selection-end-column="9" />
               <folding>
                 <element signature="e#0#1107#0" expanded="true" />
               </folding>
@@ -1273,7 +1232,14 @@
       <option name="project" value="LOCAL" />
       <updated>1511138464732</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="update features">
+      <created>1511932938485</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1511932938485</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1581,6 +1547,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1026">
           <caret line="60" column="5" lean-forward="false" selection-start-line="60" selection-start-column="5" selection-end-line="60" selection-end-column="5" />
+          <folding>
+            <element signature="e#17#271#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1676,8 +1645,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/Main.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="1389" column="10" lean-forward="true" selection-start-line="1389" selection-start-column="10" selection-end-line="1389" selection-end-column="10" />
+        <state relative-caret-position="304">
+          <caret line="1386" column="9" lean-forward="true" selection-start-line="1386" selection-start-column="9" selection-end-line="1386" selection-end-column="9" />
           <folding>
             <element signature="e#0#1107#0" expanded="true" />
           </folding>

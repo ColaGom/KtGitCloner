@@ -10,7 +10,7 @@ import data.Repository
 import data.SourceFile
 import git.Cloner
 import git.CommitExtractor
-import javafx.collections.transformation.SortedList
+import javafx.beans.binding.StringBinding
 import ml.Cluster
 import ml.Kmeans
 import ml.Node
@@ -18,19 +18,30 @@ import net.ProjectExtractor
 import newdata.CountMap
 import newdata.Project
 import newdata.SourceAnalyst
+import newdata.SourceDataGenerator
 import nlp.PreProcessor
-import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
+import opennlp.tools.cmdline.postag.POSModelLoader
+import opennlp.tools.postag.POSTaggerME
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.Styler
+import org.tartarus.snowball.ext.englishStemmer
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
+class Main
+{
+    companion object {
+        lateinit var DF_MAP : HashMap<String, Int>
+        lateinit var FILTER_WORD : HashSet<String>
+    }
+}
 //소스 파일 bag of words
 //count of list, count of set
 //count of line
@@ -61,7 +72,62 @@ fun loadAllProjectModelFile(name: String): Sequence<File> {
     }
 }
 
-fun searchTest(query: File, saveFile: File, idfMap: HashMap<String, Long>, k: Int = 1000) {
+fun searchNew(target:String, query:String, saveFile:File, k:Int = 1000)
+{
+    val result: SortedSet<Pair<String, Double>> = sortedSetOf(compareBy { it.second })
+    val analyst = SourceAnalyst(File(query))
+    analyst.analysis()
+    val queryMap = analyst.sourceFile.tfIdfMap()
+    val startTime = System.currentTimeMillis()
+
+    loadAllProjectModelFile(target).forEach {
+        val project = Project.load(it)
+
+        project.sourceList.forEach {
+            source->
+            val sourceMap = source.tfIdfMap()
+            val distance = cosineDistance(queryMap, sourceMap)
+            if (result.size < k) {
+                result.add(Pair(source.path, distance))
+            } else {
+                val last = result.last()
+                if (last.second > distance) {
+                    result.remove(last)
+                    result.add(Pair(source.path, distance))
+                }
+            }
+        }
+    }
+
+    println("elapsed : ${System.currentTimeMillis() - startTime}")
+
+    saveFile.printWriter().use {
+        it.print(GsonBuilder().setPrettyPrinting().create().toJson(result))
+    }
+}
+
+fun cosineDistance(v1:HashMap<String, Double>, v2:HashMap<String, Double>) : Double
+{
+    if (v1 != null && v2 != null) {
+        val both = v1.keys.toHashSet()
+        both.retainAll(v2.keys.toHashSet())
+        var sclar = 0.0
+        var norm1 = 0.0
+        var norm2 = 0.0
+        for (k in both)
+            sclar += v1.get(k)!! * v2.get(k)!!
+        for (k in v1.keys)
+            norm1 += v1.get(k)!! * v1.get(k)!!
+        for (k in v2.keys)
+            norm2 += v2.get(k)!! * v2.get(k)!!
+
+        val result = sclar / Math.sqrt(norm1 * norm2)
+        return if (result.isNaN()) 1.0 else 1.0 - result
+    } else
+        return 1.0
+}
+
+fun searchTest(query: File, saveFile: File, idfMap: HashMap<String, Int>, k: Int = 1000) {
     val startTime = System.currentTimeMillis()
     val target = PreProcessor(query.readText()).toSourceFile(query.path)
     val node = Node("query", target.getMergedMap()!!.tfidfDoc(idfMap))
@@ -94,7 +160,7 @@ fun analysis() {
     val dfMap: HashMap<String, Long> = Gson().fromJson(File("df_map.json").readText(), object : TypeToken<HashMap<String, Long>>() {}.type)
     val pfMap: HashMap<String, Long> = Gson().fromJson(File("pf_map.json").readText(), object : TypeToken<HashMap<String, Long>>() {}.type)
 
-    println(dfMap.filter { it.value > 20 && it.value < 600000 }.size)
+    println(dfMap.filter { it.value > 20 }.size)
 
     return
 
@@ -318,7 +384,7 @@ fun getAllFilesExt(root: File, ext: String): List<File> {
 data class Source(val path: String, val imports: MutableList<String> = mutableListOf(), val methodCalls: MutableList<String> = mutableListOf())
 data class Project(val projectName: String, val sourceList: MutableList<Source> = mutableListOf())
 
-fun normValue(map: HashMap<String, Int>, idfMap: HashMap<String, Long>): Double {
+fun normValue(map: HashMap<String, Int>, idfMap: HashMap<String, Int>): Double {
     var norm = 0.0;
 
     map.filter { idfMap.containsKey(it.key) }.forEach {
@@ -328,12 +394,12 @@ fun normValue(map: HashMap<String, Int>, idfMap: HashMap<String, Long>): Double 
     return 1 / Math.sqrt(norm)
 }
 
-fun tfidf(entry: Map.Entry<String, Int>, idfMap: HashMap<String, Long>): Double {
+fun tfidf(entry: Map.Entry<String, Int>, idfMap: HashMap<String, Int>): Double {
     return (1 + Math.log(entry.value.toDouble())) * Math.log(1 + idfMap.size / idfMap.get(entry.key)!!.toDouble())
 }
 
 
-fun HashMap<String, Int>.tfidfDoc(idfMap: HashMap<String, Long>): HashMap<String, Double> {
+fun HashMap<String, Int>.tfidfDoc(idfMap: HashMap<String, Int>): HashMap<String, Double> {
     val result: HashMap<String, Double> = hashMapOf()
 
     this.filter { idfMap.containsKey(it.key) }.forEach {
@@ -368,7 +434,7 @@ fun createIdfMap(size: Int): HashMap<String, Double> {
     return result
 }
 
-fun getNodeList(size: Int, idfMap: HashMap<String, Long>): List<Node> {
+fun getNodeList(size: Int, idfMap: HashMap<String, Int>): List<Node> {
     val nodeList: MutableList<Node> = mutableListOf()
 
     run extract@ {
@@ -397,7 +463,7 @@ fun kmeanClustering(nodeList: List<Node>) {
 }
 
 fun searchTopK(k: Int = 300, query: File): SortedSet<Pair<String, Double>> {
-    val idfMap: HashMap<String, Long> = Gson().fromJson(File("map_idf.json").readText(), object : TypeToken<HashMap<String, Long>>() {}.type);
+    val idfMap: HashMap<String, Int> = Gson().fromJson(File("map_idf.json").readText(), object : TypeToken<HashMap<String, Int>>() {}.type);
 
     val startTime = System.currentTimeMillis()
     println("start Search $startTime / ${idfMap.size}")
@@ -588,8 +654,6 @@ fun methodSim(querySet: List<String>, resultSet: List<String>): Double {
 
         resultSet.forEach {
             val sim = similarity(current, it)
-
-//            println("$current / $it = $sim")
 
             if (sim > max)
                 max = sim;
@@ -1068,86 +1132,318 @@ fun HashMap<String, Int>.increase(key: String, value: Int) {
         put(key, value)
 }
 
-fun main(args: Array<String>) {
+fun projectInfoFiltering()
+{
+    val filterSet = Main.DF_MAP.keys.toSet()
 
-    return
-
-    var dfMap : Map<String, Int> = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<Map<String, Double>>() {}.type)
-    val filterSet = dfMap.filter { it.value > 29 && it.value < 600000 }.keys
     loadAllProjectModelFile(NAME_PROJECT).forEach {
         try {
-            val project = Project.load(it);
-
-            if(project.sourceList.isEmpty())
-            {
-                it.delete()
-                return
-            }
+            val project = Project.load(it)
 
             project.sourceList.forEach {
                 it.imports.keys.removeIf{ !filterSet.contains(it) }
                 it.typeParameter.keys.removeIf{ !filterSet.contains(it) }
                 it.typeVariable.keys.removeIf{ !filterSet.contains(it) }
                 it.typeMethod.keys.removeIf{ !filterSet.contains(it) }
+                it.commentsMethod.keys.removeIf{ !filterSet.contains(it) }
+                it.commentsClassOrInterface.keys.removeIf{ !filterSet.contains(it) }
+                it.commentsVariable.keys.removeIf{ !filterSet.contains(it) }
                 it.nameVariable.keys.removeIf{ !filterSet.contains(it) }
                 it.nameParameter.keys.removeIf{ !filterSet.contains(it) }
                 it.nameMethod.keys.removeIf{ !filterSet.contains(it) }
                 it.nameClassOrInterface.keys.removeIf{ !filterSet.contains(it) }
-                it.commentsMethod.keys.removeIf{ !filterSet.contains(it) }
-                it.commentsClassOrInterface.keys.removeIf{ !filterSet.contains(it) }
-                it.commentsVariable.keys.removeIf{ !filterSet.contains(it) }
             }
 
-            File(it.path.replace(NAME_PROJECT, NAME_PROJECT_FILTERED)).printWriter().use {
-                it.print(Gson().toJson(project))
+            project.sourceList.removeIf {
+                it.getAllWords().size < 5
+            }
+
+            val saveFile = File(it.path.replace(NAME_PROJECT, NAME_PROJECT_FILTERED))
+            if(project.sourceList.size > 0)
+            {
+                saveFile.printWriter().use {
+                    println("CREATE - ${saveFile.path}")
+                    it.print(Gson().toJson(project))
+                }
+            }
+            else
+            {
+                if(saveFile.exists()) {
+                    println("DEL - ${saveFile.path}")
+                    saveFile.delete()
+                }
             }
         }
         catch (e:Exception)
         {
-            println("delete ${it.path}")
+            println("EXPCEPTION - ${it.path}")
         }
     }
+}
+
+fun createDFMap(target:String, saveFile:File)
+{
+    val dfMap = CountMap()
+    var count = 0
+
+    loadAllProjectModelFile(target).forEach {
+        try {
+            val project = Project.load(it)
+
+            project.sourceList.forEach {
+                count++
+                it.imports.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.typeMethod.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.typeVariable.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.typeParameter.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.commentsVariable.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.commentsClassOrInterface.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.commentsMethod.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.nameClassOrInterface.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.nameMethod.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.nameParameter.keys.forEach {
+                    dfMap.put(it)
+                }
+                it.nameVariable.keys.forEach {
+                    dfMap.put(it)
+                }
+            }
+        } catch (e:Exception)
+        {
+            it.delete()
+            println("${it.path} exception")
+        }
+    }
+
+    println("Source Count : $count dfMap keys : ${dfMap.keys.size}")
+
+    saveFile.printWriter().use {
+        it.println(Gson().toJson(dfMap))
+    }
+}
+
+fun evalSearchResult(target:String, resultFile:File)
+{
+    val searchMap: Set<Pair<String, Double>> = Gson().fromJson(resultFile.readText(), object : TypeToken<Set<Pair<String, Double>>>() {}.type)
+
+    val queryParser = JavaParser.parse(File(target))
+    val set = queryParser.findAll(MethodDeclaration::class.java).map { it.name.toString() }.toHashSet()
+
+    var maxES = Int.MIN_VALUE
+    var minES = Int.MAX_VALUE
+    var totalES = 0
+
+    var maxMas = Double.MIN_VALUE
+    var minMas = Double.MAX_VALUE
+    var totalMas = 0.0
+    var size = 50;
+
+    searchMap.filter { !it.first.equals(target) }.take(50).forEach {
+        try {
+            val parser = JavaParser.parse(File(it.first))
+            val currentSet = parser.findAll(MethodDeclaration::class.java).map { it.name.toString() }.toSet()
+
+            var es = expandableScore(set.toList(), currentSet.toList())
+            val ms = methodSim(set.toList(), currentSet.toList())
+
+            if (es > maxES)
+                maxES = es
+
+            if (es < minES)
+                minES = es
+
+            if (ms > maxMas)
+                maxMas = ms
+
+            if (ms < minMas)
+                minMas = ms
+
+            totalMas += ms
+            totalES += es
+        } catch (e: Exception) {
+            size--
+            println("[error]${it.first}")
+            return@forEach
+        }
+
+    }
+    println("$minES / $maxES / ${totalES / size.toDouble()} / $minMas / $maxMas / ${totalMas / size}")
+}
+
+
+fun loadProjectMap() : HashMap<String,Repository>
+{
+    return Gson().fromJson(File(PATH_PROJECT_MAP).readText(), object : TypeToken<HashMap<String, Repository>>() {}.type)
+}
+val stemmer = englishStemmer()
+
+fun String.preprocessing() : List<String>
+{
+    var str = PreProcessor.regCamelCase.replace(this," ")
+    str = PreProcessor.regHtml.replace(str, "")
+    str = com.sun.deploy.util.StringUtils.trimWhitespace(str)
+
+    return PreProcessor.regNonAlphanum.split(str.toLowerCase()).filter { it.length > 2 && it.length < 20 && !Stopwords.instance.contains(it.toLowerCase()) }.map {
+        stemmer.setCurrent(it)
+        stemmer.stem()
+        stemmer.current
+    }
+}
+//
+//fun String.preprocessing() : String
+//{
+//    var str = PreProcessor.regCamelCase.replace(this," ")
+//    str = PreProcessor.regHtml.replace(str, "")
+//    str = com.sun.deploy.util.StringUtils.trimWhitespace(str)
+//
+//    val sb = StringBuilder()
+//    PreProcessor.regNonAlphanum.split(str.toLowerCase()).filter { it.length > 2 && it.length < 20 && !Stopwords.instance.contains(it.toLowerCase()) }.map {
+//        stemmer.setCurrent(it)
+//        stemmer.stem()
+//        stemmer.current
+//    }.forEach { sb.append(it + ' ') }
+//
+//    return sb.toString()
+//}
+
+fun srcFileToDocument(srcFile:File) : String
+{
+    val parser = JavaParser.parse(srcFile)
+    var sen : MutableList<String> = mutableListOf()
+
+    parser.findAll(MethodDeclaration::class.java).forEach {
+        if(it.comment.isPresent)
+            sen.addAll(it.comment.get().toString().preprocessing())
+
+        sen.addAll(it.nameAsString.preprocessing())
+
+        if(it.body.isPresent)
+           sen.addAll(it.body.get().toString().preprocessing())
+    }
+
+    if(sen.size <= 5)
+        return ""
+
+    return sen.filter { Main.FILTER_WORD.contains(it) }.joinToString(" ")
+}
+
+data class SourceDocMeta(val path:String, val doc:String)
+
+fun extractDataSet()
+{
+    val target = loadProjectMap().filterValues { it.size < mbToKB(2048) }.values
+
+    val regex = Regex("r.java|package-info.java|\\\\test|test\\\\|test.java")
+//    val gson = GsonBuilder().setPrettyPrinting().create()
+    val gson = Gson()
+    target.forEach {
+        val root = it.toRoot()
+        if(!root.exists())
+            return@forEach
+
+        val sources : MutableList<SourceDocMeta> = mutableListOf()
+        if(root.exists())
+        {
+            FileUtils.readAllFilesExt(root, "java").filter { !regex.containsMatchIn(it.path.toLowerCase()) }.forEach {
+                srcFile->
+                try {
+                    val doc = srcFileToDocument(srcFile)
+
+                    if(doc.isEmpty())
+                        return@forEach
+
+                    sources.add(SourceDocMeta(srcFile.nameWithoutExtension, doc))
+                }
+                catch (e:Exception)
+                {
+                    println("${srcFile.path} exception")
+                }
+            }
+            val saveFile = Paths.get(PATH_DOCS,"${it.full_name.replace("/","_")}.json").toFile()
+
+            saveFile.printWriter().use {
+                it.print(gson.toJson(sources))
+            }
+
+            println("created ${saveFile.path}")
+        }
+    }
+
     return
+}
 
-//    dfMap.filterValues { it > 19 && it < 500000}
 
-//    val analyst = SourceAnalyst(File(T2))
-//    analyst.analysis()
-//    println(GsonBuilder().setPrettyPrinting().create().toJson( analyst.sourceFile))
+fun main(args: Array<String>) {
+
+    val map : HashMap<String, Int> = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<HashMap<String, Int>>() {}.type)
+    map.values.removeIf{
+        it < 30
+    }
+    Main.FILTER_WORD = map.keys.toHashSet()
+
+    extractDataSet()
+//    println(srcFileToDocument(File(T1)))
+    return
+//    val j = Jaccard();
+//    println(j.similarity("return array empty", "set preserve returned"))
 //    return
-//    analysisNew3()
+    Main.DF_MAP = Gson().fromJson(File("new_df_map.json").readText(), object:TypeToken<HashMap<String, Int>>() {}.type)
+    Main.DF_MAP.values.removeIf{
+        it < 20
+    }
+    println(Main.DF_MAP.toList().sortedByDescending { it.second }.take(1000))
+
+    return
+    evalSearchResult(T1, Paths.get(PATH_RESULT, "search_new_t1_om.json").toFile())
+    evalSearchResult(T2, Paths.get(PATH_RESULT, "search_new_t2_om.json").toFile())
+    evalSearchResult(T3, Paths.get(PATH_RESULT, "search_new_t3_om.json").toFile())
+    evalSearchResult(T4, Paths.get(PATH_RESULT, "search_new_t4_om.json").toFile())
+    evalSearchResult(T5, Paths.get(PATH_RESULT, "search_new_t5_om.json").toFile())
+    return
+    searchNew(NAME_PROJECT, T1, Paths.get(PATH_RESULT, "search_new_t1_om.json").toFile())
+    searchNew(NAME_PROJECT, T2, Paths.get(PATH_RESULT, "search_new_t2_om.json").toFile())
+    searchNew(NAME_PROJECT, T3, Paths.get(PATH_RESULT, "search_new_t3_om.json").toFile())
+    searchNew(NAME_PROJECT, T4, Paths.get(PATH_RESULT, "search_new_t4_om.json").toFile())
+    searchNew(NAME_PROJECT, T5, Paths.get(PATH_RESULT, "search_new_t5_om.json").toFile())
+    return
+    SourceDataGenerator(File(T1)).generate()
+    return
+
 
     return
 
 
-//    println(GsonBuilder().setPrettyPrinting().create().toJson(newdata.SourceFile.create(File(T6))))
+//
+//    projectInfoFiltering()
 
-
-//    val dfMap : HashMap<String, Long> = Gson().fromJson(File("df_map.json").readText(), object:TypeToken<HashMap<String, Double>>() {}.type)
-//    val idfMap : HashMap<String, Long> = hashMapOf()
-//    idfMap.putAll(dfMap.filter { it.value > 19 && it.value < 600000 })
+//    searchNew(NAME_PROJECT_FILTERED, T1, Paths.get(PATH_RESULT, "new_search_T1.json").toFile())
+//    searchNew(NAME_PROJECT_FILTERED, T2, Paths.get(PATH_RESULT, "new_search_T2.json").toFile())
+//    searchNew(NAME_PROJECT_FILTERED, T3, Paths.get(PATH_RESULT, "new_search_T3.json").toFile())
+//    searchNew(NAME_PROJECT_FILTERED, T4, Paths.get(PATH_RESULT, "new_search_T4.json").toFile())
+//    searchNew(NAME_PROJECT_FILTERED, T5, Paths.get(PATH_RESULT, "new_search_T5.json").toFile())
+//    create
 //
-//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_org.json").toFile(), dfMap);
-//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_filter.json").toFile(), idfMap);
-//    val qp = JavaParser.parse(File(T6))
-////
-////    qp.findAll(MethodDeclaration::class.java).forEach {
-////        println(it.body)
-////    }
-//
-//    qp.findAll(ClassOrInterfaceDeclaration::class.java).forEach {
-//        println(it.comment.get())
-//    }
-//
-//    qp.findAll(ConstructorDeclaration::class.java).forEach {
-//        println("${it.name} : ${it.parameters}")
-//    }
-//
-//    qp.findAll(MethodDeclaration::class.java).forEach {
-//        println("${it.name} : ${it.parameters}")
-//    }
-
+    evalSearchResult(T4, Paths.get(PATH_RESULT, "t4_filter.json").toFile())
     return
+
     val target = T6
     val searchMap: Set<Pair<String, Double>> = Gson().fromJson(Paths.get(PATH_RESULT, "t5_filter.json").toFile().readText(), object : TypeToken<Set<Pair<String, Double>>>() {}.type)
 //    val origin : Set<Pair<String, Double>> =  Gson().fromJson(Paths.get(PATH_RESULT, "t1_search_org_result.json").toFile().readText(), object:TypeToken<Set<Pair<String,Double>>> () {}.type)
@@ -1199,12 +1495,50 @@ fun main(args: Array<String>) {
         }
 
     }
-
     println("$minES / $maxES / ${totalES / size.toDouble()} / $minMas / $maxMas / ${totalMas / size}")
+
+//    dfMap.filterValues { it > 19 && it < 500000}
+
+//    val analyst = SourceAnalyst(File(T2))
+//    analyst.analysis()
+//    println(GsonBuilder().setPrettyPrinting().create().toJson( analyst.sourceFile))
+//    return
+//    analysisNew3()
+
+    return
+
+
+//    println(GsonBuilder().setPrettyPrinting().create().toJson(newdata.SourceFile.create(File(T6))))
+
+
+//    val dfMap : HashMap<String, Long> = Gson().fromJson(File("df_map.json").readText(), object:TypeToken<HashMap<String, Double>>() {}.type)
+//    val idfMap : HashMap<String, Long> = hashMapOf()
+//    idfMap.putAll(dfMap.filter { it.value > 19 && it.value < 600000 })
+//
+//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_org.json").toFile(), dfMap);
+//    searchTest(File(T6), Paths.get(PATH_RESULT,"t6_filter.json").toFile(), idfMap);
+//    val qp = JavaParser.parse(File(T6))
+////
+////    qp.findAll(MethodDeclaration::class.java).forEach {
+////        println(it.body)
+////    }
+//
+//    qp.findAll(ClassOrInterfaceDeclaration::class.java).forEach {
+//        println(it.comment.get())
+//    }
+//
+//    qp.findAll(ConstructorDeclaration::class.java).forEach {
+//        println("${it.name} : ${it.parameters}")
+//    }
+//
+//    qp.findAll(MethodDeclaration::class.java).forEach {
+//        println("${it.name} : ${it.parameters}")
+//    }
+
+    return
+
     return
     val pfMap: HashMap<String, Long> = Gson().fromJson(File("pf_map.json").readText(), object : TypeToken<HashMap<String, Long>>() {}.type)
-
-
 
 
     return

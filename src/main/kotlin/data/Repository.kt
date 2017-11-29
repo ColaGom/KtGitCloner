@@ -80,9 +80,6 @@ data class Repository(
 ) {
     fun toRoot() : File
     {
-        if(File(Projects.ROOT , full_name).exists())
-            return File(Projects.ROOT , full_name);
-
         return File(Projects.ROOT2 , full_name);
     }
 

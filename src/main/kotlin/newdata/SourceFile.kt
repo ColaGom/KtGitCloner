@@ -1,5 +1,6 @@
 package newdata
 
+import Main
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
@@ -10,9 +11,8 @@ import common.Stopwords
 import nlp.PreProcessor.Companion.regCamelCase
 import nlp.PreProcessor.Companion.regHtml
 import nlp.PreProcessor.Companion.regNonAlphanum
-import org.apache.commons.math3.ml.clustering.Clusterable
-import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer
 import org.tartarus.snowball.ext.englishStemmer
+import tfidfDoc
 import java.io.File
 
 class SourceAnalyst(val file:File)
@@ -151,16 +151,14 @@ class SourceAnalyst(val file:File)
         }
     }
 }
-class Test : Clusterable
+
+class SourceFileNode(source:SourceFile)
 {
-    override fun getPoint(): DoubleArray {
-        val c = KMeansPlusPlusClusterer<Test>(3)
-
-        c.distanceMeasure
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    lateinit var weightMap : HashMap<String, Double>
+    init {
     }
 }
+
 
 data class SourceFile (
         val path:String,
@@ -177,6 +175,46 @@ data class SourceFile (
         val nameParameter:CountMap = CountMap()
 )
 {
+
+    fun mergeMap() : HashMap<String, Int>
+    {
+        val result : HashMap<String, Int> = hashMapOf()
+
+        excuteAll { result.increase(it) }
+
+        return result;
+    }
+
+    fun tfIdfMap() : HashMap<String, Double>
+    {
+        return mergeMap().tfidfDoc(Main.DF_MAP)
+    }
+
+
+
+    fun excuteAll(qux : (Map.Entry<String,Int>) -> Unit)
+    {
+//        imports.forEach(qux)
+//        commentsClassOrInterface.forEach(qux)
+//        commentsVariable.forEach(qux)
+        commentsMethod.forEach(qux)
+//        typeVariable.forEach(qux)
+//        typeParameter.forEach(qux)
+        typeMethod.forEach(qux)
+        nameMethod.forEach(qux)
+//        nameClassOrInterface.forEach(qux)
+//        nameParameter.forEach(qux)
+//        nameVariable.forEach(qux)
+    }
+
+    fun HashMap<String, Int>.increase(entry:Map.Entry<String, Int>) {
+        if (containsKey(entry.key))
+            set(entry.key, get(entry.key)!! + entry.value)
+        else
+            put(entry.key, entry.value)
+    }
+
+
     fun getAllWords() : HashSet<String>
     {
         val set : HashSet<String> = hashSetOf()

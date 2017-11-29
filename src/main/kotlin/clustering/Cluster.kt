@@ -8,7 +8,7 @@ open class Cluster<T:Clusterable>(val nodes:MutableList<T>)
     }
 }
 
-class CentroidCluster<T:Clusterable>(val center:Clusterable ,nodes:MutableList<T>) : Cluster<T>(nodes)
+class CentroidCluster<T:Clusterable>(val center:Clusterable ,nodes:MutableList<T> = mutableListOf()) : Cluster<T>(nodes)
 {
 
 }

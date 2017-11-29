@@ -5,7 +5,7 @@ import java.io.File
 class Projects {
     companion object {
         val ROOT : File = File("D:\\Research\\Repository")
-        val ROOT2 : File = File("C:\\Research\\Repository")
+        val ROOT2 : File = File("E:\\Repository")
 
         fun getAllProjects() : List<File>
         {
